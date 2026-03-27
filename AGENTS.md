@@ -21,6 +21,7 @@ The backend currently supports two modes:
 - This project uses the `Vite + React + TypeScript` stack
 - Frontend runtime: React 19, TypeScript, Vite
 - Node.js requirement: `Node 20`
+- Import path alias: configure `@/...` to map to `src/...`, and prefer `@` for internal imports
 - Entry point: `src/main.tsx`
 - Current page entry: `src/App.tsx`
 - Common commands:
@@ -58,6 +59,11 @@ Recommended responsibilities:
 - `App.tsx`: keep it as a lightweight entry component and delegate the main screen to the workbench page
 
 The goal is to avoid packing all business logic into a single page file even when the product remains a single-page workbench.
+
+Import convention:
+
+- Use `@/...` for imports inside `src`
+- Avoid introducing new relative imports such as `./` or `../` across internal modules unless there is a clear local-only reason
 
 ## Page And Interaction Layout
 
