@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent, useState } from 'react'
+import { useEffect, useEffectEvent } from 'react'
 
 import { getTaskStatus } from '@/api/tasks'
 import { POLLING_INTERVAL_MS, TERMINAL_TASK_STATUSES } from '@/core/constants'
@@ -24,7 +24,6 @@ export function useTaskPolling({
   onError,
   onSettled,
 }: UseTaskPollingOptions) {
-  const [isPolling, setIsPolling] = useState(false)
   const onStatusEvent = useEffectEvent(onStatus)
   const onResultEvent = useEffectEvent(onResult)
   const onErrorEvent = useEffectEvent(onError)
@@ -34,13 +33,11 @@ export function useTaskPolling({
 
   useEffect(() => {
     if (!enabled || taskId === null) {
-      setIsPolling(false)
       return
     }
 
     let disposed = false
     let timeoutId: number | undefined
-    setIsPolling(true)
 
     const scheduleNext = () => {
       timeoutId = window.setTimeout(() => {
@@ -66,7 +63,6 @@ export function useTaskPolling({
           }
 
           if (resolved.kind === 'ready') {
-            setIsPolling(false)
             onResultEvent(resolved.result)
             onSettledEvent()
             return
@@ -79,7 +75,6 @@ export function useTaskPolling({
           return
         }
 
-        setIsPolling(false)
         onErrorEvent(toAppError(error))
         onSettledEvent()
       }
@@ -96,5 +91,5 @@ export function useTaskPolling({
     }
   }, [enabled, taskId])
 
-  return { isPolling }
+  return { isPolling: enabled && taskId !== null }
 }
