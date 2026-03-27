@@ -29,6 +29,42 @@ The backend currently supports two modes:
   - `npm run build`
   - `npm run lint`
 
+## Local Tooling Paths
+
+This machine has already been verified with the following local tool locations and environment details. Prefer these when terminal `PATH` is incomplete:
+
+- Node binary: `/home/yunxi-zhu/.nvm/versions/node/v20.20.1/bin/node`
+- npm CLI entry: `/home/yunxi-zhu/.nvm/versions/node/v20.20.1/lib/node_modules/npm/bin/npm-cli.js`
+- NVM bin dir: `/home/yunxi-zhu/.nvm/versions/node/v20.20.1/bin`
+- `NVM_DIR`: `/home/yunxi-zhu/.nvm`
+- Backend base URL currently used for local integration: `http://127.0.0.1:8080`
+
+When `npm` is not directly available in `PATH`, run project commands like this:
+
+```bash
+export PATH=/home/yunxi-zhu/.nvm/versions/node/v20.20.1/bin:$PATH
+/home/yunxi-zhu/.nvm/versions/node/v20.20.1/bin/node \
+  /home/yunxi-zhu/.nvm/versions/node/v20.20.1/lib/node_modules/npm/bin/npm-cli.js run lint
+```
+
+```bash
+export PATH=/home/yunxi-zhu/.nvm/versions/node/v20.20.1/bin:$PATH
+/home/yunxi-zhu/.nvm/versions/node/v20.20.1/bin/node \
+  /home/yunxi-zhu/.nvm/versions/node/v20.20.1/lib/node_modules/npm/bin/npm-cli.js run build
+```
+
+Backend health check can be done with Node `fetch` if `curl` is unavailable:
+
+```bash
+/home/yunxi-zhu/.nvm/versions/node/v20.20.1/bin/node -e "fetch('http://127.0.0.1:8080/health').then(async r => { console.log(r.status); console.log(await r.text()) })"
+```
+
+Notes:
+
+- `curl` was not found in the verified host environment, so do not assume it exists.
+- Running npm scripts may fail unless the Node 20 bin directory is prepended to `PATH`.
+- `npm run lint`, `npm run build`, and the backend health check have already been verified successfully with the commands above.
+
 ## Recommended Frontend Architecture
 
 Although the final product is mainly centered on a single workbench page, the code should still be organized with clear boundaries:
@@ -64,6 +100,35 @@ Import convention:
 
 - Use `@/...` for imports inside `src`
 - Avoid introducing new relative imports such as `./` or `../` across internal modules unless there is a clear local-only reason
+
+## Current Key Paths
+
+The phase 1 API-first workbench skeleton is already in place. Use these paths first when continuing development:
+
+- `src/App.tsx`: lightweight app entry that delegates to the workbench page
+- `src/pages/workbench/workbench-page.tsx`: top-level workbench composition
+- `src/hooks/use-workbench-state.ts`: main page state, initialization, task submission, result handling, and export orchestration
+- `src/hooks/use-task-polling.ts`: polling loop and terminal state convergence
+- `src/hooks/use-upload-files.ts`: upload file list state, local validation, and duplicate marking
+- `src/api/client.ts`: shared fetch wrapper and base URL joining
+- `src/api/templates.ts`: template list and template detail requests
+- `src/api/standard-fields.ts`: standard field initialization request
+- `src/api/tasks.ts`: task creation, task status polling, and task result fetching
+- `src/api/exports.ts`: `standard_edit` export request
+- `src/core/config.ts`: backend base URL configuration, defaulting to `http://127.0.0.1:8080`
+- `src/core/errors.ts`: unified backend error parsing, including `detail.duplicate_files`
+- `src/core/validators.ts`: upload validation and export table validation
+- `src/components/result-table/result-table.tsx`: template preview table and minimal editable standard-field table
+- `src/components/upload-panel/upload-panel.tsx`: upload area and duplicate/error display
+- `src/components/progress-panel/progress-panel.tsx`: task progress display
+- `src/components/export-actions/export-actions.tsx`: template download and standard-field export actions
+- `src/types/*`: backend-aligned API and workflow types
+- `src/workflows/initialize-workbench-flow.ts`: initial parallel bootstrap for templates and standard fields
+- `src/workflows/create-task-flow.ts`: mode-specific task payload assembly
+- `src/workflows/resolve-task-result-flow.ts`: `/result` fetch with `409` not-ready handling
+- `src/workflows/export-standard-fields-flow.ts`: export payload validation and submission
+
+If a later task touches polling behavior, start from `src/hooks/use-task-polling.ts`. If it touches mode boundaries or page flow, start from `src/hooks/use-workbench-state.ts` and `src/pages/workbench/workbench-page.tsx`.
 
 ## Page And Interaction Layout
 
@@ -243,7 +308,7 @@ Phase 3:
 
 ## Repository Development Guidance
 
-- `src/App.tsx` is still the default Vite example page and should be replaced by the business workbench later
+- `src/App.tsx` is already reduced to a lightweight entry and should stay that way
 - Prefer splitting new functionality into clear `components`, `hooks`, `api`, `workflows`, and `types` modules rather than packing everything into `App.tsx`
 - API type definitions must stay strictly aligned with backend response fields and should not be renamed arbitrarily or omit critical fields
 - Result preview depends on the JSON returned by `/result`; do not try to parse the downloaded Excel file
