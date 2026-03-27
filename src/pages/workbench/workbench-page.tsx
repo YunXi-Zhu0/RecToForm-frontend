@@ -100,8 +100,7 @@ export function WorkbenchPage() {
           result={state.taskResult}
           editableHeaders={state.editableHeaders}
           editableRows={state.editableRows}
-          onHeaderChange={state.updateHeader}
-          onCellChange={state.updateCell}
+          onTableChange={state.replaceEditableTable}
           onDeleteColumn={state.deleteColumn}
           onMoveColumn={state.moveColumn}
         />

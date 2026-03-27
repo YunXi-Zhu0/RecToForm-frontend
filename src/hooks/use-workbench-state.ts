@@ -5,7 +5,11 @@ import { DEFAULT_EXPORT_FILENAME } from '@/core/constants'
 import { toAppError } from '@/core/errors'
 import type { ProcessingMode, TaskStage, TaskStatus } from '@/types/common'
 import type { StandardFieldsResponse } from '@/types/standard-fields'
-import type { TaskResultResponse, TaskStatusResponse } from '@/types/tasks'
+import {
+  isStandardEditTaskResult,
+  type TaskResultResponse,
+  type TaskStatusResponse,
+} from '@/types/tasks'
 import type { TemplateDetail, TemplateSummary } from '@/types/templates'
 import { createTaskFlow } from '@/workflows/create-task-flow'
 import { exportStandardFieldsFlow } from '@/workflows/export-standard-fields-flow'
@@ -15,6 +19,42 @@ import { useUploadFiles } from '@/hooks/use-upload-files'
 
 function cloneRows(rows: string[][]): string[][] {
   return rows.map((row) => [...row])
+}
+
+function normalizeEditableValue(value: unknown): string {
+  if (typeof value === 'string') {
+    return value
+  }
+
+  if (value === null || value === undefined) {
+    return ''
+  }
+
+  return String(value)
+}
+
+function splitEditableTable(table: string[][]): {
+  headers: string[]
+  rows: string[][]
+} {
+  if (table.length === 0) {
+    return {
+      headers: [],
+      rows: [],
+    }
+  }
+
+  const [headerRow, ...dataRows] = table
+  const headers = headerRow.map(normalizeEditableValue)
+
+  return {
+    headers,
+    rows: dataRows.map((row) =>
+      Array.from({ length: headers.length }, (_, columnIndex) =>
+        normalizeEditableValue(row[columnIndex]),
+      ),
+    ),
+  }
 }
 
 export function useWorkbenchState() {
@@ -57,6 +97,12 @@ export function useWorkbenchState() {
 
   const selectedTemplate =
     templates.find((template) => template.template_id === selectedTemplateId) ?? null
+
+  function invalidateExportArtifacts(): void {
+    setExportId(null)
+    setExportDownloadUrl(null)
+    setExportError(null)
+  }
 
   function resetTaskOutputs(): void {
     setTaskId(null)
@@ -157,7 +203,7 @@ export function useWorkbenchState() {
       setTaskResult(result)
       setFailedItems(result.failed_items)
 
-      if (result.mode === 'standard_edit') {
+      if (isStandardEditTaskResult(result)) {
         setEditableHeaders([...result.standard_fields])
         setEditableRows(cloneRows(result.rows))
       } else {
@@ -229,7 +275,7 @@ export function useWorkbenchState() {
   }
 
   async function exportStandardFields(): Promise<void> {
-    if (taskResult?.mode !== 'standard_edit') {
+    if (taskResult === null || !isStandardEditTaskResult(taskResult)) {
       return
     }
 
@@ -285,27 +331,23 @@ export function useWorkbenchState() {
     setTemplateDetailError(null)
   }
 
-  function updateHeader(index: number, value: string): void {
-    setEditableHeaders((currentHeaders) =>
-      currentHeaders.map((header, headerIndex) =>
-        headerIndex === index ? value : header,
-      ),
-    )
-  }
-
-  function updateCell(rowIndex: number, columnIndex: number, value: string): void {
-    setEditableRows((currentRows) =>
-      currentRows.map((row, currentRowIndex) =>
-        currentRowIndex === rowIndex
-          ? row.map((cell, currentColumnIndex) =>
-              currentColumnIndex === columnIndex ? value : cell,
-            )
-          : row,
-      ),
-    )
+  function replaceEditableTable(table: string[][]): void {
+    const { headers, rows } = splitEditableTable(table)
+    invalidateExportArtifacts()
+    setEditableHeaders(headers)
+    setEditableRows(rows)
   }
 
   function deleteColumn(columnIndex: number): void {
+    if (
+      columnIndex < 0 ||
+      columnIndex >= editableHeaders.length ||
+      editableHeaders.length <= 1
+    ) {
+      return
+    }
+
+    invalidateExportArtifacts()
     setEditableHeaders((currentHeaders) =>
       currentHeaders.filter((_, index) => index !== columnIndex),
     )
@@ -316,6 +358,17 @@ export function useWorkbenchState() {
 
   function moveColumn(columnIndex: number, direction: 'left' | 'right'): void {
     const targetIndex = direction === 'left' ? columnIndex - 1 : columnIndex + 1
+
+    if (
+      columnIndex < 0 ||
+      columnIndex >= editableHeaders.length ||
+      targetIndex < 0 ||
+      targetIndex >= editableHeaders.length
+    ) {
+      return
+    }
+
+    invalidateExportArtifacts()
 
     setEditableHeaders((currentHeaders) => {
       if (targetIndex < 0 || targetIndex >= currentHeaders.length) {
@@ -373,8 +426,7 @@ export function useWorkbenchState() {
     failedItems,
     editableHeaders,
     editableRows,
-    updateHeader,
-    updateCell,
+    replaceEditableTable,
     deleteColumn,
     moveColumn,
     exportStandardFields,

@@ -62,3 +62,15 @@ export interface StandardEditTaskResult extends BaseTaskResult {
 }
 
 export type TaskResultResponse = TemplateTaskResult | StandardEditTaskResult
+
+export function isTemplateTaskResult(
+  result: TaskResultResponse,
+): result is TemplateTaskResult {
+  return 'preview_headers' in result && 'preview_rows' in result
+}
+
+export function isStandardEditTaskResult(
+  result: TaskResultResponse,
+): result is StandardEditTaskResult {
+  return 'standard_fields' in result && 'rows' in result
+}

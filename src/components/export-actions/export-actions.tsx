@@ -1,4 +1,7 @@
-import type { TaskResultResponse } from '@/types/tasks'
+import {
+  isTemplateTaskResult,
+  type TaskResultResponse,
+} from '@/types/tasks'
 
 interface ExportActionsProps {
   result: TaskResultResponse | null
@@ -21,7 +24,7 @@ export function ExportActions({
     return <p className="muted">结果完成后可在这里下载或导出。</p>
   }
 
-  if (result.mode === 'template') {
+  if (isTemplateTaskResult(result)) {
     return (
       <div className="stack">
         <a href={result.excel_download_url} target="_blank" rel="noreferrer">

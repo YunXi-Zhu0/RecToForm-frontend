@@ -51,23 +51,6 @@ progress {
   width: 100%;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th,
-td {
-  border: 1px solid #d7dfec;
-  padding: 0.75rem;
-  text-align: left;
-  vertical-align: top;
-}
-
-th {
-  background: #f8faff;
-}
-
 input[type='text'],
 select {
   width: 100%;
@@ -224,20 +207,77 @@ select {
   overflow-x: auto;
 }
 
-.editable-header {
-  display: grid;
-  gap: 0.5rem;
-}
-
-.editable-header input,
-td input {
-  min-width: 10rem;
-}
-
 .header-actions {
   display: flex;
   gap: 0.4rem;
   flex-wrap: wrap;
+}
+
+.result-preview-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.result-preview-table th,
+.result-preview-table td {
+  border: 1px solid #d7dfec;
+  padding: 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.result-preview-table th {
+  background: #f8faff;
+}
+
+.result-grid-toolbar {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.result-grid-toolbar p {
+  margin: 0;
+}
+
+.result-grid-shell {
+  border: 1px solid #d7dfec;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #f8fbff 0%, #f2f7ff 100%);
+  padding: 0.85rem;
+}
+
+.result-grid-shell .handsontable,
+.result-grid-shell .ht_master table {
+  font-size: 0.95rem;
+}
+
+.result-grid-shell .ht_master .wtHolder,
+.result-grid-shell .ht_clone_top .wtHolder,
+.result-grid-shell .ht_clone_inline_start .wtHolder {
+  border-radius: 10px;
+}
+
+.result-grid-shell .ht-theme-main {
+  --ht-cell-editor-border-color: #1e5eff;
+  --ht-color-brand-300: #c3d8ff;
+  --ht-color-brand-500: #1e5eff;
+  --ht-color-brand-600: #1747c5;
+  --ht-header-background-color: #edf4ff;
+  --ht-foreground-color: #172033;
+  --ht-background-color: #ffffff;
+  --ht-border-color: #d6dfef;
+  --ht-accent-color: #1e5eff;
+}
+
+.result-grid-shell .ht_master tr:first-child td,
+.result-grid-shell td.result-grid__header-row {
+  background: #eef5ff;
+  font-weight: 600;
+}
+
+.result-grid-shell .htCore td,
+.result-grid-shell .htCore th {
+  vertical-align: middle;
 }
 
 @media (max-width: 768px) {
@@ -247,5 +287,9 @@ td input {
 
   .file-item {
     flex-direction: column;
+  }
+
+  .result-grid-shell {
+    padding: 0.6rem;
   }
 }
