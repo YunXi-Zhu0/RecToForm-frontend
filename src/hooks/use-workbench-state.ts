@@ -432,6 +432,11 @@ export function useWorkbenchState() {
     setTemplateDetailError(null)
   }
 
+  function resetTaskSession(): void {
+    uploadFiles.clearServerDuplicateMarks()
+    resetTaskOutputs()
+  }
+
   function replaceEditableTable(table: string[][]): void {
     const { headers, rows } = splitEditableTable(table)
     invalidateExportArtifacts()
@@ -535,6 +540,7 @@ export function useWorkbenchState() {
     templateDetailError,
     standardFields,
     uploadFiles,
+    resetTaskSession,
     submitTask,
     isSubmittingTask,
     taskId,

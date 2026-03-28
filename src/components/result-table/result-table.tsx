@@ -20,6 +20,7 @@ interface ResultTableProps {
   canRestoreOriginal: boolean
   draftSavedAt: string | null
   didRestorePersistedDraft: boolean
+  hideStageHeader?: boolean
   onTableChange: (table: string[][]) => void
   onRestoreOriginal: () => void
   onDeleteColumn: (index: number) => void
@@ -67,6 +68,7 @@ export function ResultTable({
   canRestoreOriginal,
   draftSavedAt,
   didRestorePersistedDraft,
+  hideStageHeader = false,
   onTableChange,
   onRestoreOriginal,
   onDeleteColumn,
@@ -169,17 +171,19 @@ export function ResultTable({
   if (isTemplateTaskResult(result)) {
     return (
       <div className="result-stage">
-        <div className="result-stage__header">
-          <div>
-            <span className="panel-kicker">模板预览</span>
-            <h3>模板模式结果预览</h3>
+        {hideStageHeader ? null : (
+          <div className="result-stage__header">
+            <div>
+              <span className="panel-kicker">模板预览</span>
+              <h3>模板模式结果预览</h3>
+            </div>
+            <div className="result-stage__summary">
+              <span className="metric-chip">{result.preview_headers.length} 列</span>
+              <span className="metric-chip">{result.preview_rows.length} 行</span>
+              <span className="metric-chip metric-chip--success">只读预览</span>
+            </div>
           </div>
-          <div className="result-stage__summary">
-            <span className="metric-chip">{result.preview_headers.length} 列</span>
-            <span className="metric-chip">{result.preview_rows.length} 行</span>
-            <span className="metric-chip metric-chip--success">只读预览</span>
-          </div>
-        </div>
+        )}
 
         <div className="inline-notice">
           结果已按模板结构生成，首列保留源文件顺序。确认无误后可直接前往下载区获取 Excel。
@@ -219,17 +223,19 @@ export function ResultTable({
 
   return (
     <div className="result-stage">
-      <div className="result-stage__header">
-        <div>
-          <span className="panel-kicker">可编辑表格</span>
-          <h3>标准字段校对工作区</h3>
+      {hideStageHeader ? null : (
+        <div className="result-stage__header">
+          <div>
+            <span className="panel-kicker">可编辑表格</span>
+            <h3>标准字段校对工作区</h3>
+          </div>
+          <div className="result-stage__summary">
+            <span className="metric-chip">{editableHeaders.length} 列</span>
+            <span className="metric-chip">{editableRows.length} 行</span>
+            <span className="metric-chip metric-chip--info">可编辑</span>
+          </div>
         </div>
-        <div className="result-stage__summary">
-          <span className="metric-chip">{editableHeaders.length} 列</span>
-          <span className="metric-chip">{editableRows.length} 行</span>
-          <span className="metric-chip metric-chip--info">可编辑</span>
-        </div>
-      </div>
+      )}
 
       <div className="result-grid-toolbar">
         <div className="inline-notice inline-notice--accent">

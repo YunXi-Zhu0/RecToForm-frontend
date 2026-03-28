@@ -623,6 +623,11 @@ textarea:focus {
   align-items: start;
 }
 
+.workspace-output__grid--single {
+  grid-template-columns: 320px;
+  justify-content: end;
+}
+
 .workspace-output__failures {
   grid-column: 1 / -1;
 }
@@ -1097,10 +1102,24 @@ textarea:focus {
   display: grid;
   gap: 1rem;
   min-height: 100%;
+  align-content: start;
   transition:
     filter var(--transition-base),
     opacity var(--transition-base),
     transform var(--transition-base);
+}
+
+.intake-stage-card__result,
+.intake-stage-card__result .result-stage {
+  min-height: 0;
+}
+
+.intake-stage-card__result .result-stage {
+  gap: 1rem;
+}
+
+.intake-stage-card__result .result-grid-shell {
+  min-height: 0;
 }
 
 .intake-stage-card__header,
@@ -1143,9 +1162,9 @@ textarea:focus {
 }
 
 .intake-stage-card.is-processing .intake-stage-card__content {
-  filter: blur(8px);
-  opacity: 0.28;
-  transform: scale(0.994);
+  filter: blur(10px) saturate(0.88);
+  opacity: 0.3;
+  transform: scale(0.992);
 }
 
 .intake-stage-card__overlay {
@@ -1154,9 +1173,16 @@ textarea:focus {
   z-index: 2;
   display: grid;
   place-items: center;
-  padding: 1.5rem;
-  background: rgba(245, 238, 228, 0.38);
-  backdrop-filter: blur(14px);
+  padding: clamp(1.2rem, 2vw, 1.8rem);
+  background: rgba(245, 238, 228, 0.26);
+  backdrop-filter: blur(18px);
+}
+
+.intake-stage-card__overlay .progress-panel {
+  width: min(760px, 100%);
+  padding: clamp(1.2rem, 2vw, 1.8rem);
+  background: rgba(255, 251, 246, 0.88);
+  backdrop-filter: blur(10px);
 }
 
 .template-panel,
@@ -1384,6 +1410,11 @@ textarea:focus {
 @media (max-width: 1100px) {
   .workspace-output__grid {
     grid-template-columns: 1fr;
+  }
+
+  .workspace-output__grid--single {
+    grid-template-columns: 1fr;
+    justify-content: stretch;
   }
 }
 
