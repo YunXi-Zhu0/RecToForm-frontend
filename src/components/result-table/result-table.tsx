@@ -155,30 +155,56 @@ export function ResultTable({
   }
 
   if (result === null) {
-    return <p className="muted">任务完成后会在这里展示结果预览。</p>
+    return (
+      <div className="result-stage result-stage--empty">
+        <span className="panel-kicker">结果区域</span>
+        <h3>结果主舞台待命中</h3>
+        <p className="muted">
+          任务完成后，这里会切换为结果预览或可编辑表格，承接最终校对与导出动作。
+        </p>
+      </div>
+    )
   }
 
   if (isTemplateTaskResult(result)) {
     return (
-      <div className="table-wrap">
-        <table className="result-preview-table">
-          <thead>
-            <tr>
-              {result.preview_headers.map((header) => (
-                <th key={header}>{header}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {result.preview_rows.map((row, rowIndex) => (
-              <tr key={`${rowIndex}-${row.join('|')}`}>
-                {row.map((cell, columnIndex) => (
-                  <td key={`${rowIndex}-${columnIndex}`}>{cell}</td>
+      <div className="result-stage">
+        <div className="result-stage__header">
+          <div>
+            <span className="panel-kicker">模板预览</span>
+            <h3>模板模式结果预览</h3>
+          </div>
+          <div className="result-stage__summary">
+            <span className="metric-chip">{result.preview_headers.length} 列</span>
+            <span className="metric-chip">{result.preview_rows.length} 行</span>
+            <span className="metric-chip metric-chip--success">只读预览</span>
+          </div>
+        </div>
+
+        <div className="inline-notice">
+          结果已按模板结构生成，首列保留源文件顺序。确认无误后可直接前往下载区获取 Excel。
+        </div>
+
+        <div className="table-wrap result-grid-shell">
+          <table className="result-preview-table">
+            <thead>
+              <tr>
+                {result.preview_headers.map((header) => (
+                  <th key={header}>{header}</th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {result.preview_rows.map((row, rowIndex) => (
+                <tr key={`${rowIndex}-${row.join('|')}`}>
+                  {row.map((cell, columnIndex) => (
+                    <td key={`${rowIndex}-${columnIndex}`}>{cell}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     )
   }
@@ -192,8 +218,23 @@ export function ResultTable({
   const tableHeight = Math.min(Math.max((editableRows.length + 2) * 40, 240), 560)
 
   return (
-    <div className="stack">
+    <div className="result-stage">
+      <div className="result-stage__header">
+        <div>
+          <span className="panel-kicker">可编辑表格</span>
+          <h3>标准字段校对工作区</h3>
+        </div>
+        <div className="result-stage__summary">
+          <span className="metric-chip">{editableHeaders.length} 列</span>
+          <span className="metric-chip">{editableRows.length} 行</span>
+          <span className="metric-chip metric-chip--info">可编辑</span>
+        </div>
+      </div>
+
       <div className="result-grid-toolbar">
+        <div className="inline-notice inline-notice--accent">
+          当前为全字段返回模式。首行就是导出列名，可直接修改并参与最终导出。
+        </div>
         <p className="muted">
           首行就是导出列名，可直接编辑。选中任意单元格后可移动或删除当前列，支持
           <code>Ctrl/Cmd + C</code> 与 <code>Ctrl/Cmd + V</code>。

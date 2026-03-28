@@ -24,63 +24,135 @@ export function TemplatePanel({
   templateDetailError,
 }: TemplatePanelProps) {
   if (mode === 'standard_edit') {
+    const fieldPreview = standardFields?.fields.slice(0, 10) ?? []
+
     return (
-      <div className="stack">
-        <p>
-          标准字段版本：<strong>{standardFields?.version ?? '-'}</strong>
-        </p>
-        <p>
-          默认缺失值：<code>{standardFields?.default_missing_value ?? ''}</code>
-        </p>
-        <p>字段数：{standardFields?.fields.length ?? 0}</p>
-        <div className="tag-list">
-          {standardFields?.fields.map((field) => (
-            <span key={field} className="tag">
-              {field}
+      <div className="template-panel template-panel--standard">
+        <div className="template-panel__hero">
+          <span className="panel-kicker">All Standard Fields</span>
+          <h3>全字段返回模式</h3>
+          <p className="muted">
+            当前结果会按标准字段全量返回，后续在结果区直接完成列名调整、删列、排序和导出。
+          </p>
+        </div>
+
+        <div className="template-panel__stats">
+          <div className="template-panel__stat">
+            <span className="muted">字段版本</span>
+            <strong>{standardFields?.version ?? '-'}</strong>
+          </div>
+          <div className="template-panel__stat">
+            <span className="muted">字段数量</span>
+            <strong>{standardFields?.fields.length ?? 0}</strong>
+          </div>
+          <div className="template-panel__stat">
+            <span className="muted">默认缺失值</span>
+            <strong>
+              <code>{standardFields?.default_missing_value ?? ''}</code>
+            </strong>
+          </div>
+        </div>
+
+        <div className="template-panel__preview">
+          <div className="template-panel__preview-header">
+            <span>字段预览</span>
+            <span className="muted">
+              {fieldPreview.length < (standardFields?.fields.length ?? 0)
+                ? `展示前 ${fieldPreview.length} 个`
+                : '当前版本全部字段'}
             </span>
-          ))}
+          </div>
+          <div className="tag-list">
+            {fieldPreview.map((field) => (
+              <span key={field} className="tag">
+                {field}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
     )
   }
 
   if (templates.length === 0) {
-    return <p className="muted">当前没有可用模板。</p>
+    return <p className="empty-state">当前没有可用模板。</p>
   }
 
-  return (
-    <div className="stack">
-      <label className="field">
-        <span>模板</span>
-        <select
-          value={selectedTemplateId ?? ''}
-          onChange={(event) => onSelectTemplate(event.currentTarget.value)}
-        >
-          {templates.map((template) => (
-            <option key={template.template_id} value={template.template_id}>
-              {template.template_name} ({template.template_version})
-            </option>
-          ))}
-        </select>
-      </label>
+  const selectedTemplate =
+    templates.find((template) => template.template_id === selectedTemplateId) ?? null
+  const previewHeaders =
+    templateDetail === null
+      ? []
+      : templateDetail.recommended_field_ids.map(
+          (fieldId) => templateDetail.default_header_labels[fieldId] ?? fieldId,
+        )
 
-      {isTemplateDetailLoading ? <p>模板详情加载中...</p> : null}
-      {templateDetailError ? <p className="error-text">{templateDetailError}</p> : null}
+  return (
+    <div className="template-panel">
+      <div className="template-panel__hero">
+        <span className="panel-kicker">Template Guidance</span>
+        <h3>模板选择区</h3>
+        <p className="muted">
+          选择预置模板后，后端会按该模板结构直接组装 Excel，结果区提供只读预览。
+        </p>
+      </div>
+
+      <div className="template-panel__cards">
+        {templates.map((template) => (
+          <button
+            key={template.template_id}
+            type="button"
+            className={
+              template.template_id === selectedTemplateId
+                ? 'template-card is-active'
+                : 'template-card'
+            }
+            onClick={() => onSelectTemplate(template.template_id)}
+          >
+            <span className="template-card__eyebrow">
+              v{template.template_version}
+            </span>
+            <strong>{template.template_name}</strong>
+            <span className="muted">Mapping {template.mapping_version}</span>
+            <span className="template-card__state">
+              {template.template_id === selectedTemplateId ? '当前模板' : '点击载入'}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      {selectedTemplate ? (
+        <div className="template-panel__selection">
+          <span className="muted">已选模板</span>
+          <strong>{selectedTemplate.template_name}</strong>
+          <span className="muted">
+            v{selectedTemplate.template_version} / Mapping{' '}
+            {selectedTemplate.mapping_version}
+          </span>
+        </div>
+      ) : null}
+
+      {isTemplateDetailLoading ? (
+        <div className="inline-notice">模板详情加载中...</div>
+      ) : null}
+      {templateDetailError ? (
+        <div className="inline-notice inline-notice--error">
+          {templateDetailError}
+        </div>
+      ) : null}
 
       {templateDetail ? (
-        <div className="stack">
-          <p>
-            模板 ID：<code>{templateDetail.template_id}</code>
-          </p>
-          <p>
-            版本：{templateDetail.template_version} / Mapping{' '}
-            {templateDetail.mapping_version}
-          </p>
-          <p>推荐字段：</p>
+        <div className="template-panel__preview">
+          <div className="template-panel__preview-header">
+            <span>推荐表头预览</span>
+            <span className="muted">
+              模板 ID：<code>{templateDetail.template_id}</code>
+            </span>
+          </div>
           <div className="tag-list">
-            {templateDetail.recommended_field_ids.map((fieldId) => (
-              <span key={fieldId} className="tag">
-                {templateDetail.default_header_labels[fieldId] ?? fieldId}
+            {previewHeaders.map((label) => (
+              <span key={label} className="tag">
+                {label}
               </span>
             ))}
           </div>

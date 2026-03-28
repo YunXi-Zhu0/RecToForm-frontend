@@ -37,11 +37,15 @@ export function FailedItems({ items }: FailedItemsProps) {
   })
 
   if (items.length === 0) {
-    return <p className="muted">当前没有失败项。</p>
+    return (
+      <div className="empty-state empty-state--warning">
+        当前没有失败项，异常面板保持空闲。
+      </div>
+    )
   }
 
   return (
-    <div className="stack">
+    <div className="failed-items-panel">
       <div className="failed-items-summary">
         <div className="failed-items-stat">
           <strong>{items.length}</strong>
@@ -95,12 +99,17 @@ export function FailedItems({ items }: FailedItemsProps) {
       </div>
 
       {filteredItems.length === 0 ? (
-        <p className="muted">当前筛选条件下没有匹配的失败项。</p>
+        <div className="empty-state">
+          当前筛选条件下没有匹配的失败项。
+        </div>
       ) : (
-        <ul className="message-list error-list failed-items-list">
+        <ul className="failed-items-list">
           {filteredItems.map((item) => (
             <li key={`${item.file_id}-${item.file_name}`} className="failed-items-list__item">
-              <strong>{item.file_name}</strong>
+              <div className="failed-items-list__meta">
+                <strong>{item.file_name}</strong>
+                <span className="metric-chip metric-chip--error">失败项</span>
+              </div>
               <span>{item.error_message}</span>
             </li>
           ))}
