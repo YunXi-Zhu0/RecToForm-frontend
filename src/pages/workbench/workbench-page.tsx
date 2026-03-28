@@ -16,6 +16,21 @@ import {
   isTemplateTaskResult,
 } from '@/types/tasks'
 
+function ReturnArrowIcon() {
+  return (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path
+        d="M8.25 5.25 3.5 10l4.75 4.75M4 10h12.5"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.7"
+      />
+    </svg>
+  )
+}
+
 export function WorkbenchPage() {
   const state = useWorkbenchState()
   const [isUploadSelectorVisible, setIsUploadSelectorVisible] = useState(true)
@@ -131,7 +146,6 @@ export function WorkbenchPage() {
               <>
                 <div className="intake-stage-card__header">
                   <div>
-                    <span className="panel-kicker">中间舞台</span>
                     <h3>
                       {state.taskResult !== null &&
                       isStandardEditTaskResult(state.taskResult)
@@ -188,34 +202,24 @@ export function WorkbenchPage() {
               <>
                 <div className="intake-stage-card__header">
                   <div>
-                    <span className="panel-kicker">中间舞台</span>
-                    <h3>{hasFiles ? '上传后模板预演' : '文件上传框'}</h3>
+                    <h3>表格字段预览与编辑</h3>
+                    <p className="muted">
+                      表头和行数据会在正式识别后按该结构输出。
+                    </p>
                   </div>
-                  <span className="metric-chip">
-                    {hasFiles
-                      ? `${state.uploadFiles.files.length} 个文件已入列`
-                      : '等待文件'}
-                  </span>
+                  {!shouldShowUploadSelector ? (
+                    <button
+                      type="button"
+                      className="button-secondary intake-stage-card__return-button"
+                      onClick={() => setIsUploadSelectorVisible(true)}
+                    >
+                      <span className="intake-stage-card__return-icon">
+                        <ReturnArrowIcon />
+                      </span>
+                      补充上传文件
+                    </button>
+                  ) : null}
                 </div>
-
-                {shouldShowUploadSelector ? (
-                  <UploadPanel
-                    filesCount={state.uploadFiles.items.length}
-                    validationErrors={state.uploadFiles.validationErrors}
-                    onAddFiles={handleAddFiles}
-                  />
-                ) : (
-                  <IntakePreview
-                    mode={state.mode}
-                    selectedTemplate={state.selectedTemplate}
-                    templateDetail={state.templateDetail}
-                    standardFields={state.standardFields}
-                    uploadFileNames={state.uploadFiles.items.map((item) => item.file.name)}
-                    isTemplateDetailLoading={state.isTemplateDetailLoading}
-                    templateDetailError={state.templateDetailError}
-                    onBack={() => setIsUploadSelectorVisible(true)}
-                  />
-                )}
 
                 {state.submitError ? (
                   <div className="inline-notice inline-notice--error">
@@ -229,28 +233,35 @@ export function WorkbenchPage() {
                   </div>
                 ) : null}
 
-                <div className="intake-stage-card__footer">
-                  <div className="intake-stage-card__summary">
-                    <span className="metric-chip">
-                      {hasFiles
-                        ? `${state.uploadFiles.files.length} 个待处理文件`
-                        : '等待文件'}
-                    </span>
-                    <span className="metric-chip">
-                      {state.mode === 'template'
-                        ? state.selectedTemplate?.template_name ?? '待选模板'
-                        : `${state.standardFields?.fields.length ?? 0} 个标准字段`}
-                    </span>
-                  </div>
+                <div className="intake-stage-card__preview-workspace">
+                  {shouldShowUploadSelector ? (
+                    <UploadPanel
+                      filesCount={state.uploadFiles.items.length}
+                      validationErrors={state.uploadFiles.validationErrors}
+                      onAddFiles={handleAddFiles}
+                    />
+                  ) : (
+                    <IntakePreview
+                      mode={state.mode}
+                      selectedTemplate={state.selectedTemplate}
+                      templateDetail={state.templateDetail}
+                      standardFields={state.standardFields}
+                      uploadFileNames={state.uploadFiles.items.map((item) => item.file.name)}
+                      isTemplateDetailLoading={state.isTemplateDetailLoading}
+                      templateDetailError={state.templateDetailError}
+                    />
+                  )}
 
-                  <button
-                    type="button"
-                    className="button-primary intake-stage-card__submit"
-                    onClick={() => void state.submitTask()}
-                    disabled={!canSubmit}
-                  >
-                    {state.isSubmittingTask ? '提交任务中...' : '开始处理'}
-                  </button>
+                  <div className="intake-stage-card__footer intake-stage-card__footer--action">
+                    <button
+                      type="button"
+                      className="button-primary intake-stage-card__submit"
+                      onClick={() => void state.submitTask()}
+                      disabled={!canSubmit}
+                    >
+                      {state.isSubmittingTask ? '提交任务中...' : '开始处理'}
+                    </button>
+                  </div>
                 </div>
               </>
             )}
