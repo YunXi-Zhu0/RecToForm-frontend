@@ -251,21 +251,23 @@ export function WorkbenchPage() {
                       templateDetailError={state.templateDetailError}
                     />
                   )}
-
-                  <div className="intake-stage-card__footer intake-stage-card__footer--action">
-                    <button
-                      type="button"
-                      className="button-primary intake-stage-card__submit"
-                      onClick={() => void state.submitTask()}
-                      disabled={!canSubmit}
-                    >
-                      {state.isSubmittingTask ? '提交任务中...' : '开始处理'}
-                    </button>
-                  </div>
                 </div>
               </>
             )}
           </div>
+
+          {!hasResult ? (
+            <div className="intake-stage-card__footer intake-stage-card__footer--action">
+              <button
+                type="button"
+                className="button-primary intake-stage-card__submit"
+                onClick={() => void state.submitTask()}
+                disabled={!canSubmit}
+              >
+                {state.isSubmittingTask ? '提交任务中...' : '开始处理'}
+              </button>
+            </div>
+          ) : null}
 
           {isProcessing ? (
             <div className="intake-stage-card__overlay">

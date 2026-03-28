@@ -1099,6 +1099,8 @@ textarea:focus {
 }
 
 .intake-stage-card {
+  display: flex;
+  flex-direction: column;
   height: 100%;
   min-height: 0;
   overflow: hidden;
@@ -1106,10 +1108,11 @@ textarea:focus {
 
 .intake-stage-card__content {
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
   gap: 1rem;
   min-height: 0;
-  height: 100%;
+  height: auto;
   transition:
     filter var(--transition-base),
     opacity var(--transition-base),
@@ -1126,6 +1129,7 @@ textarea:focus {
   flex: 1 1 auto;
   flex-direction: column;
   min-height: 0;
+  overflow: hidden;
 }
 
 .intake-stage-card__result {
@@ -1179,7 +1183,7 @@ textarea:focus {
 }
 
 .intake-stage-card__footer--action {
-  margin-top: 0;
+  margin-top: 1rem;
   min-height: 4.5rem;
   justify-content: flex-end;
   align-items: flex-end;
@@ -1486,6 +1490,7 @@ textarea:focus {
 }
 
 .intake-preview__board {
+  height: 100%;
   min-height: 0;
   grid-template-rows: auto minmax(0, 1fr);
   padding: 1rem;
