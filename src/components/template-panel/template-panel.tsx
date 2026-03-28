@@ -11,6 +11,7 @@ interface TemplatePanelProps {
   standardFields: StandardFieldsResponse | null
   isTemplateDetailLoading: boolean
   templateDetailError: string | null
+  disabled?: boolean
 }
 
 export function TemplatePanel({
@@ -22,6 +23,7 @@ export function TemplatePanel({
   standardFields,
   isTemplateDetailLoading,
   templateDetailError,
+  disabled = false,
 }: TemplatePanelProps) {
   if (mode === 'standard_edit') {
     const fieldPreview = standardFields?.fields.slice(0, 10) ?? []
@@ -108,6 +110,7 @@ export function TemplatePanel({
                 : 'template-card'
             }
             onClick={() => onSelectTemplate(template.template_id)}
+            disabled={disabled}
           >
             <span className="template-card__eyebrow">
               v{template.template_version}

@@ -1,18 +1,30 @@
+import { useEffect, useState } from 'react'
+
 import { ExportActions } from '@/components/export-actions/export-actions'
 import { FailedItems } from '@/components/failed-items/failed-items'
+import { IntakePreview } from '@/components/intake-preview/intake-preview'
 import { ModeSwitcher } from '@/components/mode-switcher/mode-switcher'
 import { ProgressPanel } from '@/components/progress-panel/progress-panel'
 import { ResultTable } from '@/components/result-table/result-table'
+import { TemplatePanel } from '@/components/template-panel/template-panel'
+import { UploadFileList } from '@/components/upload-file-list/upload-file-list'
 import { UploadPanel } from '@/components/upload-panel/upload-panel'
 import { formatTaskStatus } from '@/core/formatters'
 import { useWorkbenchState } from '@/hooks/use-workbench-state'
 
 export function WorkbenchPage() {
   const state = useWorkbenchState()
+  const [isUploadSelectorVisible, setIsUploadSelectorVisible] = useState(true)
   const isProcessing = state.isSubmittingTask || state.isPolling
   const hasFiles = state.uploadFiles.files.length > 0
   const hasResult = state.taskResult !== null
   const hasFailedItems = state.failedItems.length > 0
+  const canSubmit =
+    hasFiles &&
+    (state.mode !== 'template' || state.selectedTemplate !== null) &&
+    !state.isInitializing &&
+    !state.isSubmittingTask &&
+    !state.isPolling
   const systemState = state.initializationError
     ? '连接异常'
     : state.isInitializing
@@ -27,15 +39,17 @@ export function WorkbenchPage() {
       : isProcessing
         ? 'info'
         : 'success'
-  const templatePreviewHeaders =
-    state.templateDetail === null
-      ? []
-      : state.templateDetail.recommended_field_ids
-          .map(
-            (fieldId) => state.templateDetail?.default_header_labels[fieldId] ?? fieldId,
-          )
-          .slice(0, 6)
-  const standardFieldPreview = state.standardFields?.fields.slice(0, 6) ?? []
+
+  useEffect(() => {
+    if (!hasFiles) {
+      setIsUploadSelectorVisible(true)
+    }
+  }, [hasFiles])
+
+  function handleAddFiles(files: FileList | File[]): void {
+    state.uploadFiles.addFiles(files)
+    setIsUploadSelectorVisible(false)
+  }
 
   return (
     <main className="workbench-page">
@@ -57,8 +71,7 @@ export function WorkbenchPage() {
 
       <section className="hero-copy">
         <p>
-          上传票据后，在同一张卡片里选择处理模式并直接启动任务。处理中会对当前区域做虚化遮罩，
-          只保留进度与轮盘。
+          当前阶段把工作台拆成左侧模板区、中间上传与预演区、右侧文件清单区。上传后中间会直接切换成拟生成表格的样式预览，便于继续补充文件或开始处理。
         </p>
       </section>
 
@@ -75,128 +88,73 @@ export function WorkbenchPage() {
         </div>
       ) : null}
 
-      <section className="intake-shell">
-        <div className={isProcessing ? 'intake-card is-processing' : 'intake-card'}>
-          <div className="intake-card__base">
-            <div className="intake-card__intro">
-              <span className="panel-kicker">上传区域</span>
-              <h2>先上传文件，再配置处理方式。</h2>
-              <p className="muted">
-                简化成单一路径，不预先展开多余控制区。上传完成后再显示模式与模板配置。
-              </p>
+      <section className="workbench-studio">
+        <section className="surface-card workbench-column workbench-column--left">
+          <div className="surface-card__header">
+            <div>
+              <span className="panel-kicker">处理配置</span>
+              <h3>模式与模板</h3>
+            </div>
+            <span className="metric-chip">
+              {state.mode === 'template' ? '模板模式' : '标准字段模式'}
+            </span>
+          </div>
+
+          <ModeSwitcher
+            value={state.mode}
+            onChange={state.changeMode}
+            disabled={isProcessing}
+          />
+
+          <TemplatePanel
+            mode={state.mode}
+            templates={state.templates}
+            selectedTemplateId={state.selectedTemplateId}
+            onSelectTemplate={state.selectTemplateId}
+            templateDetail={state.templateDetail}
+            standardFields={state.standardFields}
+            isTemplateDetailLoading={state.isTemplateDetailLoading}
+            templateDetailError={state.templateDetailError}
+            disabled={isProcessing}
+          />
+        </section>
+
+        <section
+          className={
+            isProcessing
+              ? 'surface-card workbench-column workbench-column--center intake-stage-card is-processing'
+              : 'surface-card workbench-column workbench-column--center intake-stage-card'
+          }
+        >
+          <div className="intake-stage-card__content">
+            <div className="intake-stage-card__header">
+              <div>
+                <span className="panel-kicker">中间舞台</span>
+                <h3>{hasFiles ? '上传后模板预演' : '文件上传框'}</h3>
+              </div>
+              <span className="metric-chip">
+                {hasFiles ? `${state.uploadFiles.files.length} 个文件已入列` : '等待文件'}
+              </span>
             </div>
 
-            <UploadPanel
-              files={state.uploadFiles.items}
-              validationErrors={state.uploadFiles.validationErrors}
-              onAddFiles={state.uploadFiles.addFiles}
-              onRemoveFile={state.uploadFiles.removeFile}
-              onClearFiles={state.uploadFiles.clearFiles}
-            />
-
-            {hasFiles ? (
-              <section className="intake-config">
-                <div className="intake-config__header">
-                  <div>
-                    <span className="panel-kicker">处理方式</span>
-                    <h3>选择处理模式</h3>
-                  </div>
-                  <span className="metric-chip">{state.uploadFiles.files.length} 个文件</span>
-                </div>
-
-                <ModeSwitcher value={state.mode} onChange={state.changeMode} />
-
-                {state.mode === 'template' ? (
-                  <div className="compact-config">
-                    <label className="field">
-                      <span>输出模板</span>
-                      <select
-                        value={state.selectedTemplateId ?? ''}
-                        onChange={(event) => state.selectTemplateId(event.target.value)}
-                      >
-                        <option value="">请选择模板</option>
-                        {state.templates.map((template) => (
-                          <option
-                            key={template.template_id}
-                            value={template.template_id}
-                          >
-                            {template.template_name} · v{template.template_version}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-
-                    {state.selectedTemplate ? (
-                      <div className="compact-stat-grid">
-                        <div className="compact-stat">
-                          <span className="muted">当前模板</span>
-                          <strong>{state.selectedTemplate.template_name}</strong>
-                        </div>
-                        <div className="compact-stat">
-                          <span className="muted">模板版本</span>
-                          <strong>v{state.selectedTemplate.template_version}</strong>
-                        </div>
-                        <div className="compact-stat">
-                          <span className="muted">映射版本</span>
-                          <strong>{state.selectedTemplate.mapping_version}</strong>
-                        </div>
-                      </div>
-                    ) : null}
-
-                    {state.isTemplateDetailLoading ? (
-                      <div className="inline-notice">模板详情加载中...</div>
-                    ) : null}
-                    {state.templateDetailError ? (
-                      <div className="inline-notice inline-notice--error">
-                        {state.templateDetailError}
-                      </div>
-                    ) : null}
-                    {templatePreviewHeaders.length > 0 ? (
-                      <div className="compact-preview">
-                        <span className="muted">推荐表头预览</span>
-                        <div className="tag-list">
-                          {templatePreviewHeaders.map((label) => (
-                            <span key={label} className="tag">
-                              {label}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    ) : null}
-                  </div>
-                ) : (
-                  <div className="compact-config">
-                    <div className="compact-stat-grid">
-                      <div className="compact-stat">
-                        <span className="muted">字段版本</span>
-                        <strong>{state.standardFields?.version ?? '-'}</strong>
-                      </div>
-                      <div className="compact-stat">
-                        <span className="muted">字段数量</span>
-                        <strong>{state.standardFields?.fields.length ?? 0}</strong>
-                      </div>
-                      <div className="compact-stat">
-                        <span className="muted">默认缺失值</span>
-                        <strong>{state.standardFields?.default_missing_value ?? ''}</strong>
-                      </div>
-                    </div>
-
-                    {standardFieldPreview.length > 0 ? (
-                      <div className="compact-preview">
-                        <span className="muted">标准字段预览</span>
-                        <div className="tag-list">
-                          {standardFieldPreview.map((field) => (
-                            <span key={field} className="tag">
-                              {field}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    ) : null}
-                  </div>
-                )}
-              </section>
-            ) : null}
+            {!hasFiles || isUploadSelectorVisible ? (
+              <UploadPanel
+                filesCount={state.uploadFiles.items.length}
+                validationErrors={state.uploadFiles.validationErrors}
+                onAddFiles={handleAddFiles}
+              />
+            ) : (
+              <IntakePreview
+                mode={state.mode}
+                selectedTemplate={state.selectedTemplate}
+                templateDetail={state.templateDetail}
+                standardFields={state.standardFields}
+                uploadFileNames={state.uploadFiles.items.map((item) => item.file.name)}
+                isTemplateDetailLoading={state.isTemplateDetailLoading}
+                templateDetailError={state.templateDetailError}
+                onBack={() => setIsUploadSelectorVisible(true)}
+              />
+            )}
 
             {state.submitError ? (
               <div className="inline-notice inline-notice--error">
@@ -204,30 +162,23 @@ export function WorkbenchPage() {
               </div>
             ) : null}
 
-            <div className="intake-card__footer">
-              <div className="intake-card__summary">
+            <div className="intake-stage-card__footer">
+              <div className="intake-stage-card__summary">
                 <span className="metric-chip">
                   {hasFiles ? `${state.uploadFiles.files.length} 个待处理文件` : '等待文件'}
                 </span>
-                {hasFiles ? (
-                  <span className="metric-chip">
-                    {state.mode === 'template'
-                      ? state.selectedTemplate?.template_name ?? '待选模板'
-                      : `${state.standardFields?.fields.length ?? 0} 个标准字段`}
-                  </span>
-                ) : null}
+                <span className="metric-chip">
+                  {state.mode === 'template'
+                    ? state.selectedTemplate?.template_name ?? '待选模板'
+                    : `${state.standardFields?.fields.length ?? 0} 个标准字段`}
+                </span>
               </div>
 
               <button
                 type="button"
-                className="button-primary intake-card__submit"
+                className="button-primary intake-stage-card__submit"
                 onClick={() => void state.submitTask()}
-                disabled={
-                  state.isInitializing ||
-                  state.isSubmittingTask ||
-                  state.isPolling ||
-                  !hasFiles
-                }
+                disabled={!canSubmit}
               >
                 {state.isSubmittingTask ? '提交任务中...' : '开始处理'}
               </button>
@@ -235,7 +186,7 @@ export function WorkbenchPage() {
           </div>
 
           {isProcessing ? (
-            <div className="intake-card__overlay">
+            <div className="intake-stage-card__overlay">
               <ProgressPanel
                 taskId={state.taskId}
                 taskStatus={state.taskStatus}
@@ -248,7 +199,16 @@ export function WorkbenchPage() {
               />
             </div>
           ) : null}
-        </div>
+        </section>
+
+        <section className="surface-card workbench-column workbench-column--right">
+          <UploadFileList
+            files={state.uploadFiles.items}
+            onRemoveFile={state.uploadFiles.removeFile}
+            onClearFiles={state.uploadFiles.clearFiles}
+            disabled={isProcessing}
+          />
+        </section>
       </section>
 
       {hasResult || hasFailedItems ? (

@@ -5,6 +5,7 @@ import type { ProcessingMode } from '@/types/common'
 interface ModeSwitcherProps {
   value: ProcessingMode
   onChange: (mode: ProcessingMode) => void
+  disabled?: boolean
 }
 
 const MODE_COPY: Record<
@@ -24,7 +25,11 @@ const MODE_COPY: Record<
   },
 }
 
-export function ModeSwitcher({ value, onChange }: ModeSwitcherProps) {
+export function ModeSwitcher({
+  value,
+  onChange,
+  disabled = false,
+}: ModeSwitcherProps) {
   return (
     <div className="mode-switcher" role="tablist" aria-label="处理模式切换">
       {PROCESSING_MODES.map((mode) => (
@@ -39,6 +44,7 @@ export function ModeSwitcher({ value, onChange }: ModeSwitcherProps) {
           onClick={() => onChange(mode)}
           role="tab"
           aria-selected={mode === value}
+          disabled={disabled}
         >
           <div className="mode-switcher__title-row">
             <strong className="mode-switcher__title">{formatMode(mode)}</strong>
