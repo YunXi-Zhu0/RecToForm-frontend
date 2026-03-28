@@ -276,8 +276,6 @@ export function WorkbenchPage() {
           <UploadFileList
             files={state.uploadFiles.items}
             onRemoveFile={state.uploadFiles.removeFile}
-            onClearFiles={state.uploadFiles.clearFiles}
-            disabled={isControlLocked}
           />
         </section>
       </section>
