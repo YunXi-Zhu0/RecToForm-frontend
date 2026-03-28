@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+
 import {
   isTemplateTaskResult,
   type TaskResultResponse,
@@ -9,7 +11,8 @@ interface ExportActionsProps {
   exportFilename: string
   exportError: string | null
   isExporting: boolean
-  onExport: () => void
+  onCommitExportFilename: (filename: string) => void
+  onExport: (filename: string) => void
 }
 
 export function ExportActions({
@@ -18,8 +21,15 @@ export function ExportActions({
   exportFilename,
   exportError,
   isExporting,
+  onCommitExportFilename,
   onExport,
 }: ExportActionsProps) {
+  const [inputValue, setInputValue] = useState(exportFilename)
+
+  useEffect(() => {
+    setInputValue(exportFilename)
+  }, [exportFilename])
+
   if (result === null) {
     return <p className="muted">结果完成后可在这里下载或导出。</p>
   }
@@ -36,7 +46,25 @@ export function ExportActions({
 
   return (
     <div className="stack">
-      <button type="button" onClick={onExport} disabled={isExporting}>
+      <label className="field">
+        <span>导出文件名</span>
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(event) => setInputValue(event.target.value)}
+          onBlur={() => onCommitExportFilename(inputValue)}
+          placeholder="standard_fields_export.xlsx"
+        />
+      </label>
+      <p className="muted">留空时使用后端默认文件名。</p>
+      <button
+        type="button"
+        onClick={() => {
+          onCommitExportFilename(inputValue)
+          onExport(inputValue)
+        }}
+        disabled={isExporting}
+      >
         {isExporting ? '导出中...' : '导出标准字段 Excel'}
       </button>
       {exportDownloadUrl ? (

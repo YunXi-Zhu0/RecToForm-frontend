@@ -100,7 +100,11 @@ export function WorkbenchPage() {
           result={state.taskResult}
           editableHeaders={state.editableHeaders}
           editableRows={state.editableRows}
+          canRestoreOriginal={state.canRestoreOriginal}
+          draftSavedAt={state.draftSavedAt}
+          didRestorePersistedDraft={state.didRestorePersistedDraft}
           onTableChange={state.replaceEditableTable}
+          onRestoreOriginal={state.restoreOriginalTable}
           onDeleteColumn={state.deleteColumn}
           onMoveColumn={state.moveColumn}
         />
@@ -117,7 +121,11 @@ export function WorkbenchPage() {
           exportFilename={state.exportFilename}
           exportError={state.exportError}
           isExporting={state.isExporting}
-          onExport={() => void state.exportStandardFields()}
+          onCommitExportFilename={state.commitExportFilename}
+          onExport={(filename) => {
+            state.commitExportFilename(filename)
+            void state.exportStandardFields(filename)
+          }}
         />
       </WorkbenchSection>
     </main>

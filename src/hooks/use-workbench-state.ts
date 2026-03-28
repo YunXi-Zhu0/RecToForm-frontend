@@ -1,7 +1,11 @@
 import { startTransition, useEffect, useEffectEvent, useState } from 'react'
 
 import { getTemplateDetail } from '@/api/templates'
-import { DEFAULT_EXPORT_FILENAME } from '@/core/constants'
+import {
+  clearStandardEditDraft,
+  readStandardEditDraft,
+  writeStandardEditDraft,
+} from '@/core/drafts'
 import { toAppError } from '@/core/errors'
 import type { ProcessingMode, TaskStage, TaskStatus } from '@/types/common'
 import type { StandardFieldsResponse } from '@/types/standard-fields'
@@ -11,6 +15,7 @@ import {
   type TaskStatusResponse,
 } from '@/types/tasks'
 import type { TemplateDetail, TemplateSummary } from '@/types/templates'
+import type { WorkbenchInitializationData } from '@/types/workbench'
 import { createTaskFlow } from '@/workflows/create-task-flow'
 import { exportStandardFieldsFlow } from '@/workflows/export-standard-fields-flow'
 import { initializeWorkbenchFlow } from '@/workflows/initialize-workbench-flow'
@@ -57,6 +62,22 @@ function splitEditableTable(table: string[][]): {
   }
 }
 
+function areStringArraysEqual(left: string[], right: string[]): boolean {
+  if (left.length !== right.length) {
+    return false
+  }
+
+  return left.every((value, index) => value === right[index])
+}
+
+function areStringMatrixesEqual(left: string[][], right: string[][]): boolean {
+  if (left.length !== right.length) {
+    return false
+  }
+
+  return left.every((row, rowIndex) => areStringArraysEqual(row, right[rowIndex] ?? []))
+}
+
 export function useWorkbenchState() {
   const uploadFiles = useUploadFiles()
 
@@ -83,11 +104,15 @@ export function useWorkbenchState() {
   const [failedItems, setFailedItems] = useState<TaskResultResponse['failed_items']>(
     [],
   )
+  const [originalEditableHeaders, setOriginalEditableHeaders] = useState<string[]>([])
+  const [originalEditableRows, setOriginalEditableRows] = useState<string[][]>([])
   const [editableHeaders, setEditableHeaders] = useState<string[]>([])
   const [editableRows, setEditableRows] = useState<string[][]>([])
   const [exportId, setExportId] = useState<string | null>(null)
   const [exportDownloadUrl, setExportDownloadUrl] = useState<string | null>(null)
-  const [exportFilename, setExportFilename] = useState(DEFAULT_EXPORT_FILENAME)
+  const [exportFilename, setExportFilename] = useState('')
+  const [draftSavedAt, setDraftSavedAt] = useState<string | null>(null)
+  const [didRestorePersistedDraft, setDidRestorePersistedDraft] = useState(false)
   const [isSubmittingTask, setIsSubmittingTask] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -105,6 +130,7 @@ export function useWorkbenchState() {
   }
 
   function resetTaskOutputs(): void {
+    clearStandardEditDraft()
     setTaskId(null)
     setTaskStatus(null)
     setTaskStage(null)
@@ -112,15 +138,70 @@ export function useWorkbenchState() {
     setTaskSnapshot(null)
     setTaskResult(null)
     setFailedItems([])
+    setOriginalEditableHeaders([])
+    setOriginalEditableRows([])
     setEditableHeaders([])
     setEditableRows([])
     setExportId(null)
     setExportDownloadUrl(null)
-    setExportFilename(DEFAULT_EXPORT_FILENAME)
+    setExportFilename('')
+    setDraftSavedAt(null)
+    setDidRestorePersistedDraft(false)
     setSubmitError(null)
     setResultError(null)
     setExportError(null)
     setIsPollingEnabled(false)
+  }
+
+  function applyInitializationData(data: WorkbenchInitializationData): void {
+    const persistedDraft = readStandardEditDraft()
+
+    startTransition(() => {
+      setTemplates(data.templates)
+      setSelectedTemplateId(data.selectedTemplateId)
+      setTemplateDetail(data.templateDetail)
+      setStandardFields(data.standardFields)
+
+      if (persistedDraft === null) {
+        setMode('template')
+        setTaskId(null)
+        setTaskStatus(null)
+        setTaskStage(null)
+        setTaskProgress(0)
+        setTaskSnapshot(null)
+        setTaskResult(null)
+        setFailedItems([])
+        setOriginalEditableHeaders([])
+        setOriginalEditableRows([])
+        setEditableHeaders([])
+        setEditableRows([])
+        setExportId(null)
+        setExportDownloadUrl(null)
+        setExportFilename('')
+        setSubmitError(null)
+        setResultError(null)
+        setExportError(null)
+        setIsPollingEnabled(false)
+        return
+      }
+
+      setMode('standard_edit')
+      setTaskId(persistedDraft.task_result.task_id)
+      setTaskStatus(persistedDraft.task_result.status)
+      setTaskStage(persistedDraft.task_result.status)
+      setTaskProgress(100)
+      setTaskSnapshot(null)
+      setTaskResult(persistedDraft.task_result)
+      setFailedItems(persistedDraft.task_result.failed_items)
+      setOriginalEditableHeaders([...persistedDraft.original_headers])
+      setOriginalEditableRows(cloneRows(persistedDraft.original_rows))
+      setEditableHeaders([...persistedDraft.editable_headers])
+      setEditableRows(cloneRows(persistedDraft.editable_rows))
+      setExportFilename(persistedDraft.export_filename)
+    })
+
+    setDraftSavedAt(persistedDraft?.saved_at ?? null)
+    setDidRestorePersistedDraft(persistedDraft !== null)
   }
 
   const initializeFromServer = useEffectEvent(async () => {
@@ -129,14 +210,7 @@ export function useWorkbenchState() {
 
     try {
       const data = await initializeWorkbenchFlow()
-
-      startTransition(() => {
-        setTemplates(data.templates)
-        setSelectedTemplateId(data.selectedTemplateId)
-        setTemplateDetail(data.templateDetail)
-        setStandardFields(data.standardFields)
-        setMode('template')
-      })
+      applyInitializationData(data)
     } catch (error) {
       setInitializationError(toAppError(error).message)
     } finally {
@@ -147,6 +221,32 @@ export function useWorkbenchState() {
   useEffect(() => {
     void initializeFromServer()
   }, [])
+
+  useEffect(() => {
+    if (taskResult === null || !isStandardEditTaskResult(taskResult)) {
+      return
+    }
+
+    const savedAt = writeStandardEditDraft({
+      task_result: taskResult,
+      original_headers: originalEditableHeaders,
+      original_rows: originalEditableRows,
+      editable_headers: editableHeaders,
+      editable_rows: editableRows,
+      export_filename: exportFilename,
+    })
+
+    if (savedAt !== null) {
+      setDraftSavedAt(savedAt)
+    }
+  }, [
+    editableHeaders,
+    editableRows,
+    exportFilename,
+    originalEditableHeaders,
+    originalEditableRows,
+    taskResult,
+  ])
 
   useEffect(() => {
     if (selectedTemplateId === null) {
@@ -204,9 +304,16 @@ export function useWorkbenchState() {
       setFailedItems(result.failed_items)
 
       if (isStandardEditTaskResult(result)) {
+        setOriginalEditableHeaders([...result.standard_fields])
+        setOriginalEditableRows(cloneRows(result.rows))
         setEditableHeaders([...result.standard_fields])
         setEditableRows(cloneRows(result.rows))
+        setExportFilename('')
+        setDraftSavedAt(null)
+        setDidRestorePersistedDraft(false)
       } else {
+        setOriginalEditableHeaders([])
+        setOriginalEditableRows([])
         setEditableHeaders([])
         setEditableRows([])
       }
@@ -274,7 +381,7 @@ export function useWorkbenchState() {
     }
   }
 
-  async function exportStandardFields(): Promise<void> {
+  async function exportStandardFields(filenameOverride?: string): Promise<void> {
     if (taskResult === null || !isStandardEditTaskResult(taskResult)) {
       return
     }
@@ -283,10 +390,11 @@ export function useWorkbenchState() {
     setExportError(null)
 
     try {
+      const filename = (filenameOverride ?? exportFilename).trim()
       const response = await exportStandardFieldsFlow({
         headers: editableHeaders,
         rows: editableRows,
-        filename: exportFilename,
+        filename: filename === '' ? undefined : filename,
       })
 
       setExportId(response.export_id)
@@ -311,14 +419,7 @@ export function useWorkbenchState() {
 
     try {
       const data = await initializeWorkbenchFlow()
-
-      startTransition(() => {
-        setTemplates(data.templates)
-        setSelectedTemplateId(data.selectedTemplateId)
-        setTemplateDetail(data.templateDetail)
-        setStandardFields(data.standardFields)
-        setMode('template')
-      })
+      applyInitializationData(data)
     } catch (error) {
       setInitializationError(toAppError(error).message)
     } finally {
@@ -336,6 +437,16 @@ export function useWorkbenchState() {
     invalidateExportArtifacts()
     setEditableHeaders(headers)
     setEditableRows(rows)
+  }
+
+  function restoreOriginalTable(): void {
+    if (originalEditableHeaders.length === 0) {
+      return
+    }
+
+    invalidateExportArtifacts()
+    setEditableHeaders([...originalEditableHeaders])
+    setEditableRows(cloneRows(originalEditableRows))
   }
 
   function deleteColumn(columnIndex: number): void {
@@ -399,6 +510,16 @@ export function useWorkbenchState() {
     )
   }
 
+  function commitExportFilename(nextFilename: string): void {
+    invalidateExportArtifacts()
+    setExportFilename(nextFilename)
+  }
+
+  const canRestoreOriginal =
+    originalEditableHeaders.length > 0 &&
+    (!areStringArraysEqual(editableHeaders, originalEditableHeaders) ||
+      !areStringMatrixesEqual(editableRows, originalEditableRows))
+
   return {
     isInitializing,
     initializationError,
@@ -424,15 +545,20 @@ export function useWorkbenchState() {
     taskResult,
     isPolling,
     failedItems,
+    draftSavedAt,
+    didRestorePersistedDraft,
     editableHeaders,
     editableRows,
+    canRestoreOriginal,
     replaceEditableTable,
+    restoreOriginalTable,
     deleteColumn,
     moveColumn,
     exportStandardFields,
     isExporting,
     exportId,
     exportFilename,
+    commitExportFilename,
     exportDownloadUrl,
     submitError,
     resultError,

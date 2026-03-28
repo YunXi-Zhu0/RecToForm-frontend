@@ -20,3 +20,22 @@ export function formatTaskStage(stage: TaskStage | null): string {
 
   return TASK_STAGE_LABELS[stage]
 }
+
+export function formatDraftSavedAt(savedAt: string | null): string {
+  if (savedAt === null) {
+    return '尚未保存'
+  }
+
+  const date = new Date(savedAt)
+
+  if (Number.isNaN(date.getTime())) {
+    return '刚刚'
+  }
+
+  return new Intl.DateTimeFormat('zh-CN', {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date)
+}

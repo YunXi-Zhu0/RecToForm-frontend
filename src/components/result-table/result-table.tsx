@@ -4,6 +4,7 @@ import { registerAllModules } from 'handsontable/registry'
 import type { CellMeta } from 'handsontable/settings'
 import { useMemo, useRef, useState } from 'react'
 
+import { formatDraftSavedAt } from '@/core/formatters'
 import {
   isStandardEditTaskResult,
   isTemplateTaskResult,
@@ -16,7 +17,11 @@ interface ResultTableProps {
   result: TaskResultResponse | null
   editableHeaders: string[]
   editableRows: string[][]
+  canRestoreOriginal: boolean
+  draftSavedAt: string | null
+  didRestorePersistedDraft: boolean
   onTableChange: (table: string[][]) => void
+  onRestoreOriginal: () => void
   onDeleteColumn: (index: number) => void
   onMoveColumn: (index: number, direction: 'left' | 'right') => void
 }
@@ -59,7 +64,11 @@ export function ResultTable({
   result,
   editableHeaders,
   editableRows,
+  canRestoreOriginal,
+  draftSavedAt,
+  didRestorePersistedDraft,
   onTableChange,
+  onRestoreOriginal,
   onDeleteColumn,
   onMoveColumn,
 }: ResultTableProps) {
@@ -189,9 +198,23 @@ export function ResultTable({
           首行就是导出列名，可直接编辑。选中任意单元格后可移动或删除当前列，支持
           <code>Ctrl/Cmd + C</code> 与 <code>Ctrl/Cmd + V</code>。
         </p>
+        <div className="draft-status">
+          <span className="tag">草稿自动保存</span>
+          <span className="muted">最近保存：{formatDraftSavedAt(draftSavedAt)}</span>
+          {didRestorePersistedDraft ? (
+            <span className="tag">已恢复上次草稿</span>
+          ) : null}
+        </div>
         <div className="inline-actions">
           <span className="tag">当前列：{selectedColumnLabel}</span>
           <div className="header-actions">
+            <button
+              type="button"
+              onClick={onRestoreOriginal}
+              disabled={!canRestoreOriginal}
+            >
+              恢复原始识别值
+            </button>
             <button
               type="button"
               onClick={() => moveSelectedColumn('left')}
