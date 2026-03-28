@@ -715,11 +715,13 @@ textarea:focus {
 .upload-dropzone {
   position: relative;
   display: grid;
+  align-content: center;
+  grid-auto-rows: max-content;
   justify-items: center;
   text-align: center;
-  gap: 1rem;
-  min-height: min(54vh, 480px);
-  padding: clamp(1.4rem, 3vw, 2.2rem);
+  gap: clamp(0.8rem, 1.8vh, 1.05rem);
+  min-height: min(48vh, 420px);
+  padding: clamp(1.3rem, 2.6vw, 2rem);
   border-radius: 28px;
   border: 1px dashed rgba(136, 149, 119, 0.28);
   background:
@@ -744,8 +746,8 @@ textarea:focus {
   position: relative;
   display: grid;
   place-items: center;
-  width: 118px;
-  height: 118px;
+  width: 102px;
+  height: 102px;
 }
 
 .upload-dropzone__halo,
@@ -754,8 +756,8 @@ textarea:focus {
 }
 
 .upload-dropzone__halo {
-  width: 118px;
-  height: 118px;
+  width: 102px;
+  height: 102px;
   border-radius: 50%;
   background:
     radial-gradient(circle, rgba(214, 202, 177, 0.36) 0%, rgba(214, 202, 177, 0.14) 58%, transparent 72%);
@@ -768,11 +770,11 @@ textarea:focus {
 .upload-dropzone__glyph {
   display: grid;
   place-items: center;
-  width: 72px;
-  height: 72px;
-  border-radius: 24px;
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
   color: #5d5348;
-  font-size: 2.2rem;
+  font-size: 2rem;
   font-weight: 300;
   background: rgba(255, 250, 243, 0.96);
   border: 1px solid rgba(136, 149, 119, 0.18);
@@ -781,13 +783,13 @@ textarea:focus {
 
 .upload-dropzone__content {
   display: grid;
-  gap: 0.45rem;
-  max-width: 520px;
+  gap: 0.35rem;
+  max-width: 500px;
 }
 
 .upload-dropzone__content h3 {
   margin: 0.2rem 0 0;
-  font-size: clamp(1.4rem, 4vw, 2rem);
+  font-size: clamp(1.3rem, 3.4vw, 1.8rem);
 }
 
 .upload-dropzone__actions,
@@ -797,6 +799,10 @@ textarea:focus {
   flex-wrap: wrap;
   gap: 0.7rem;
   justify-content: center;
+}
+
+.upload-dropzone__limits {
+  max-width: 540px;
 }
 
 .upload-panel__toolbar {
