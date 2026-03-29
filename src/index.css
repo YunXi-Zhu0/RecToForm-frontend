@@ -452,6 +452,10 @@ textarea:focus {
   gap: 0.35rem;
 }
 
+.brand-header {
+  margin-bottom: 0.7rem;
+}
+
 .brand-header__eyebrow {
   font-size: 0.76rem;
   letter-spacing: 0.26em;
