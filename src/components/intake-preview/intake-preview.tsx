@@ -88,43 +88,45 @@ export function IntakePreview({
               role="region"
               aria-label="模板虚拟表格预演"
             >
-              <div className="intake-preview-grid" style={gridStyle}>
-                <div className="intake-preview-grid__row intake-preview-grid__row--header">
-                  {displayHeaders.map((header) => (
-                    <div key={header} className="intake-preview-grid__cell">
-                      {header}
-                    </div>
-                  ))}
-                </div>
-
-                {previewRows.map((fileName, rowIndex) => (
-                  <div
-                    key={`${fileName}-${rowIndex}`}
-                    className="intake-preview-grid__row"
-                  >
-                    {displayHeaders.map((header, columnIndex) => (
-                      <div
-                        key={`${fileName}-${header}`}
-                        className={
-                          columnIndex === 0 && mode === 'template'
-                            ? 'intake-preview-grid__cell intake-preview-grid__cell--file'
-                            : 'intake-preview-grid__cell intake-preview-grid__cell--skeleton'
-                        }
-                      >
-                        {columnIndex === 0 && mode === 'template' ? (
-                          fileName
-                        ) : (
-                          <span
-                            className="intake-preview-grid__skeleton"
-                            style={{
-                              width: `${56 + ((rowIndex + columnIndex) % 3) * 14}%`,
-                            }}
-                          />
-                        )}
+              <div className="table-wrap intake-preview__scroller">
+                <div className="intake-preview-grid" style={gridStyle}>
+                  <div className="intake-preview-grid__row intake-preview-grid__row--header">
+                    {displayHeaders.map((header) => (
+                      <div key={header} className="intake-preview-grid__cell">
+                        {header}
                       </div>
                     ))}
                   </div>
-                ))}
+
+                  {previewRows.map((fileName, rowIndex) => (
+                    <div
+                      key={`${fileName}-${rowIndex}`}
+                      className="intake-preview-grid__row"
+                    >
+                      {displayHeaders.map((header, columnIndex) => (
+                        <div
+                          key={`${fileName}-${header}`}
+                          className={
+                            columnIndex === 0 && mode === 'template'
+                              ? 'intake-preview-grid__cell intake-preview-grid__cell--file'
+                              : 'intake-preview-grid__cell intake-preview-grid__cell--skeleton'
+                          }
+                        >
+                          {columnIndex === 0 && mode === 'template' ? (
+                            fileName
+                          ) : (
+                            <span
+                              className="intake-preview-grid__skeleton"
+                              style={{
+                                width: `${56 + ((rowIndex + columnIndex) % 3) * 14}%`,
+                              }}
+                            />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

@@ -184,25 +184,27 @@ export function ResultTable({
         </div>
 
         <div className="result-stage__table result-stage__table--preview">
-          <div className="table-wrap result-grid-shell result-grid-shell--preview">
-            <table className="result-preview-table">
-              <thead>
-                <tr>
-                  {result.preview_headers.map((header) => (
-                    <th key={header}>{header}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {result.preview_rows.map((row, rowIndex) => (
-                  <tr key={`${rowIndex}-${row.join('|')}`}>
-                    {row.map((cell, columnIndex) => (
-                      <td key={`${rowIndex}-${columnIndex}`}>{cell}</td>
+          <div className="result-grid-shell result-grid-shell--preview">
+            <div className="table-wrap result-grid-scroller result-grid-scroller--preview">
+              <table className="result-preview-table">
+                <thead>
+                  <tr>
+                    {result.preview_headers.map((header) => (
+                      <th key={header}>{header}</th>
                     ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {result.preview_rows.map((row, rowIndex) => (
+                    <tr key={`${rowIndex}-${row.join('|')}`}>
+                      {row.map((cell, columnIndex) => (
+                        <td key={`${rowIndex}-${columnIndex}`}>{cell}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
