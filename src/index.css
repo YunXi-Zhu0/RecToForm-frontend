@@ -875,11 +875,16 @@ textarea:focus {
 }
 
 .progress-wheel {
+  --wheel-size: 170px;
+  --wheel-core-gap: 16px;
+  --wheel-ring-offset: 10px;
   position: relative;
   display: grid;
   place-items: center;
-  width: 170px;
-  aspect-ratio: 1;
+  width: var(--wheel-size);
+  height: var(--wheel-size);
+  margin-inline: auto;
+  flex: none;
   border-radius: 50%;
   background:
     radial-gradient(circle at center, rgba(255, 251, 246, 0) 55%, rgba(255, 251, 246, 0.98) 56%),
@@ -889,7 +894,7 @@ textarea:focus {
 .progress-wheel::before {
   content: '';
   position: absolute;
-  inset: 16px;
+  inset: var(--wheel-core-gap);
   border-radius: 50%;
   background:
     radial-gradient(circle at top, rgba(214, 202, 177, 0.28), transparent 60%),
@@ -904,8 +909,8 @@ textarea:focus {
 }
 
 .progress-wheel__ring {
-  width: 196px;
-  height: 196px;
+  position: absolute;
+  inset: calc(var(--wheel-ring-offset) * -1);
   border-radius: 50%;
   border: 1px dashed rgba(136, 149, 119, 0.24);
   animation: wheelSpin 7s linear infinite;
@@ -913,11 +918,13 @@ textarea:focus {
 
 .progress-wheel__center {
   position: absolute;
-  inset: 0;
+  inset: var(--wheel-core-gap);
   display: grid;
   place-items: center;
   font-family: var(--font-mono);
-  font-size: 1.8rem;
+  font-size: clamp(1.55rem, 2.4vw, 1.8rem);
+  line-height: 1;
+  text-align: center;
   color: #5d5348;
 }
 
@@ -1754,12 +1761,9 @@ textarea:focus {
   }
 
   .progress-wheel {
-    width: 148px;
-  }
-
-  .progress-wheel__ring {
-    width: 172px;
-    height: 172px;
+    --wheel-size: 148px;
+    --wheel-core-gap: 14px;
+    --wheel-ring-offset: 8px;
   }
 
   .upload-file-sidebar__table-head,

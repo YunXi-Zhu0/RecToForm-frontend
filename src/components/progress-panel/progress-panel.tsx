@@ -26,16 +26,6 @@ export function ProgressPanel({
   isPreparing = false,
 }: ProgressPanelProps) {
   const progressValue = Math.max(0, Math.min(100, taskProgress))
-  const statusTone =
-    isPreparing
-      ? 'info'
-      : taskStatus === 'failed'
-      ? 'error'
-      : taskStatus === 'partially_succeeded'
-        ? 'warning'
-        : taskStatus === 'succeeded'
-          ? 'success'
-          : 'info'
   const wheelStyle = {
     '--progress': `${Math.max(progressValue, isPreparing ? 12 : 0)}%`,
   } as CSSProperties
@@ -50,8 +40,7 @@ export function ProgressPanel({
     return (
       <div className="progress-panel progress-panel--idle">
         <div className="progress-panel__header">
-          <span className="panel-kicker">处理进度</span>
-          <span className="status-pill status-pill--idle">等待中</span>
+          <span className="status-pill status-pill--info">等待中</span>
         </div>
         <h3>任务尚未启动</h3>
         <p className="muted">
@@ -64,8 +53,7 @@ export function ProgressPanel({
   return (
     <div className="progress-panel">
       <div className="progress-panel__header">
-        <span className="panel-kicker">处理进度</span>
-        <span className={`status-pill status-pill--${statusTone}`}>
+        <span className="status-pill status-pill--info">
           {isPreparing ? '提交中' : formatTaskStatus(taskStatus)}
         </span>
       </div>
