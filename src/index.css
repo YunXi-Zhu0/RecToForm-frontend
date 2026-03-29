@@ -991,6 +991,31 @@ textarea:focus {
   gap: 0.85rem;
 }
 
+.result-grid-toolbar__notice {
+  position: relative;
+  padding: 1rem 1.1rem 1rem 1.4rem;
+  border-radius: 18px;
+  border: 1px solid rgba(135, 152, 109, 0.2);
+  background:
+    linear-gradient(135deg, rgba(248, 244, 234, 0.98), rgba(241, 235, 223, 0.92));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.48),
+    0 10px 24px rgba(136, 149, 119, 0.08);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+}
+
+.result-grid-toolbar__notice::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  border-radius: 18px 0 0 18px;
+  background: linear-gradient(180deg, #87986d, rgba(135, 152, 109, 0.34));
+}
+
 .header-actions button {
   min-height: 2.4rem;
   padding: 0.55rem 0.9rem;

@@ -152,9 +152,6 @@ export function WorkbenchPage() {
                         ? '标准字段结果预览'
                         : '模板结果预览'}
                     </h3>
-                    <p className="muted">
-                      处理中间层结束后，主舞台直接切换为结果表格，校对完成后再到下方执行导出或下载。
-                    </p>
                   </div>
                   <div className="intake-stage-card__summary">
                     <span className="metric-chip">
@@ -188,8 +185,6 @@ export function WorkbenchPage() {
                     editableHeaders={state.editableHeaders}
                     editableRows={state.editableRows}
                     canRestoreOriginal={state.canRestoreOriginal}
-                    draftSavedAt={state.draftSavedAt}
-                    didRestorePersistedDraft={state.didRestorePersistedDraft}
                     hideStageHeader
                     onTableChange={state.replaceEditableTable}
                     onRestoreOriginal={state.restoreOriginalTable}

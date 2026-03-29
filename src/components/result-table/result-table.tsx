@@ -4,7 +4,6 @@ import { registerAllModules } from 'handsontable/registry'
 import type { CellMeta } from 'handsontable/settings'
 import { useMemo, useRef, useState } from 'react'
 
-import { formatDraftSavedAt } from '@/core/formatters'
 import {
   isStandardEditTaskResult,
   isTemplateTaskResult,
@@ -18,8 +17,6 @@ interface ResultTableProps {
   editableHeaders: string[]
   editableRows: string[][]
   canRestoreOriginal: boolean
-  draftSavedAt: string | null
-  didRestorePersistedDraft: boolean
   hideStageHeader?: boolean
   onTableChange: (table: string[][]) => void
   onRestoreOriginal: () => void
@@ -66,8 +63,6 @@ export function ResultTable({
   editableHeaders,
   editableRows,
   canRestoreOriginal,
-  draftSavedAt,
-  didRestorePersistedDraft,
   hideStageHeader = false,
   onTableChange,
   onRestoreOriginal,
@@ -239,19 +234,8 @@ export function ResultTable({
         )}
 
         <div className="result-grid-toolbar">
-          <div className="inline-notice inline-notice--accent">
-            当前为全字段返回模式。首行就是导出列名，可直接修改并参与最终导出。
-          </div>
-          <p className="muted">
-            首行就是导出列名，可直接编辑。选中任意单元格后可移动或删除当前列，支持
-            <code>Ctrl/Cmd + C</code> 与 <code>Ctrl/Cmd + V</code>。
-          </p>
-          <div className="draft-status">
-            <span className="tag">草稿自动保存</span>
-            <span className="muted">最近保存：{formatDraftSavedAt(draftSavedAt)}</span>
-            {didRestorePersistedDraft ? (
-              <span className="tag">已恢复上次草稿</span>
-            ) : null}
+          <div className="inline-notice inline-notice--accent result-grid-toolbar__notice">
+            首行就是导出列名，可直接编辑。选中任意单元格后可移动或删除当前列。
           </div>
           <div className="inline-actions">
             <span className="tag">当前列：{selectedColumnLabel}</span>
