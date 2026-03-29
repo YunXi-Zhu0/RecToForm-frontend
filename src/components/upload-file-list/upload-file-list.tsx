@@ -4,6 +4,7 @@ import type { UploadFileItem } from '@/types/workbench'
 interface UploadFileListProps {
   files: UploadFileItem[]
   onRemoveFile: (fileId: string) => void
+  canRemoveSuccessfulFiles?: boolean
 }
 
 function formatFileSize(size: number): string {
@@ -160,7 +161,11 @@ function RemovableSuccessStatusButton({
   )
 }
 
-export function UploadFileList({ files, onRemoveFile }: UploadFileListProps) {
+export function UploadFileList({
+  files,
+  onRemoveFile,
+  canRemoveSuccessfulFiles = true,
+}: UploadFileListProps) {
   const duplicateHintMap = buildDuplicateHintMap(files)
 
   return (
@@ -225,11 +230,15 @@ export function UploadFileList({ files, onRemoveFile }: UploadFileListProps) {
                         >
                           <StatusIcon status={status.icon} />
                         </button>
-                      ) : (
+                      ) : canRemoveSuccessfulFiles ? (
                         <RemovableSuccessStatusButton
                           fileName={item.file.name}
                           onRemove={() => onRemoveFile(item.id)}
                         />
+                      ) : (
+                        <span className={`file-status ${status.toneClassName}`}>
+                          <StatusIcon status={status.icon} />
+                        </span>
                       )}
                       {duplicateHint ? (
                         <span className={`file-status__hint ${status.toneClassName}`}>
