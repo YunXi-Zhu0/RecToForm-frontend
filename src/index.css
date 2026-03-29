@@ -965,8 +965,18 @@ textarea:focus {
   overflow: hidden;
 }
 
-.result-stage__table .result-grid-shell {
+.result-stage__table--preview {
+  height: clamp(320px, 42vh, 520px);
+  max-height: 100%;
+}
+
+.result-stage__table--preview .result-grid-shell {
   height: 100%;
+  max-width: 100%;
+}
+
+.result-stage__table--editable {
+  overflow: hidden;
 }
 
 .result-stage__summary {
@@ -991,6 +1001,7 @@ textarea:focus {
 }
 
 .result-grid-shell {
+  display: block;
   min-height: 0;
   border: 1px solid rgba(136, 149, 119, 0.16);
   border-radius: 22px;
@@ -998,7 +1009,15 @@ textarea:focus {
     linear-gradient(180deg, rgba(255, 252, 248, 0.98), rgba(247, 241, 232, 0.98));
   padding: 0.95rem;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.result-grid-shell--preview {
   overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.result-grid-shell--editable {
+  overflow: hidden;
 }
 
 .result-preview-table {
@@ -1016,8 +1035,6 @@ textarea:focus {
 }
 
 .result-preview-table th {
-  position: sticky;
-  top: 0;
   color: #4e443b;
   background: rgba(238, 231, 220, 0.96);
 }
@@ -1511,11 +1528,13 @@ textarea:focus {
   border: 1px solid rgba(136, 149, 119, 0.14);
   background:
     linear-gradient(180deg, rgba(255, 252, 248, 0.98), rgba(247, 241, 232, 0.98));
+  overflow: hidden;
 }
 
 .intake-preview__viewport {
   min-height: 0;
-  height: 100%;
+  height: clamp(300px, 40vh, 460px);
+  max-height: 100%;
   overflow: auto;
   padding: 0.1rem 0.2rem 0.2rem 0;
 }
@@ -1630,6 +1649,7 @@ textarea:focus {
   flex: 1 1 auto;
   min-height: 0;
   display: grid;
+  overflow: hidden;
 }
 
 .intake-preview__main > .empty-state,
@@ -1676,9 +1696,19 @@ textarea:focus {
 
   .workbench-column--left .template-panel,
   .workbench-column--right .upload-file-sidebar,
-  .upload-file-sidebar__list,
-  .intake-preview__viewport {
+  .upload-file-sidebar__list {
     overflow: visible;
+  }
+
+  .intake-preview__viewport {
+    height: clamp(260px, 44vh, 380px);
+    max-height: none;
+    overflow: auto;
+  }
+
+  .result-stage__table--preview {
+    height: clamp(280px, 46vh, 420px);
+    max-height: none;
   }
 }
 

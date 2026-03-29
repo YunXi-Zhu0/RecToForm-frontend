@@ -191,8 +191,8 @@ export function ResultTable({
           </div>
         </div>
 
-        <div className="result-stage__table">
-          <div className="table-wrap result-grid-shell">
+        <div className="result-stage__table result-stage__table--preview">
+          <div className="table-wrap result-grid-shell result-grid-shell--preview">
             <table className="result-preview-table">
               <thead>
                 <tr>
@@ -222,8 +222,7 @@ export function ResultTable({
       ? '未选择'
       : editableHeaders[activeSelectedColumnIndex]?.trim() ||
         `未命名列 ${activeSelectedColumnIndex + 1}`
-
-  const tableHeight = Math.min(Math.max((editableRows.length + 2) * 40, 240), 560)
+  const editableTableHeight = 420
 
   return (
     <div className="result-stage">
@@ -302,15 +301,15 @@ export function ResultTable({
         </div>
       </div>
 
-      <div className="result-stage__table">
-        <div className="table-wrap result-grid-shell">
+      <div className="result-stage__table result-stage__table--editable">
+        <div className="table-wrap result-grid-shell result-grid-shell--editable">
           <HotTable
             ref={hotRef}
             data={editableTableData}
             rowHeaders={renderRowHeader}
             colHeaders={false}
             width="100%"
-            height={tableHeight}
+            height={editableTableHeight}
             fixedRowsTop={1}
             autoWrapRow={true}
             autoWrapCol={true}
