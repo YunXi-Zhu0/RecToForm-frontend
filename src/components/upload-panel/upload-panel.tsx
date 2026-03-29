@@ -14,6 +14,7 @@ export function UploadPanel({
 }: UploadPanelProps) {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const [isDragActive, setIsDragActive] = useState(false)
+  const openFileDialog = () => inputRef.current?.click()
 
   return (
     <div className="upload-panel">
@@ -51,10 +52,15 @@ export function UploadPanel({
           }}
         />
 
-        <div className="upload-dropzone__visual" aria-hidden="true">
+        <button
+          type="button"
+          className="upload-dropzone__visual"
+          onClick={openFileDialog}
+          aria-label="选择上传文件"
+        >
           <span className="upload-dropzone__halo" />
           <span className="upload-dropzone__glyph">+</span>
-        </div>
+        </button>
 
         <div className="upload-dropzone__content">
           <span className="panel-kicker">上传文件</span>
@@ -67,11 +73,7 @@ export function UploadPanel({
         </div>
 
         <div className="upload-dropzone__actions">
-          <button
-            type="button"
-            className="button-primary"
-            onClick={() => inputRef.current?.click()}
-          >
+          <button type="button" className="button-primary" onClick={openFileDialog}>
             选择文件
           </button>
         </div>

@@ -734,6 +734,15 @@ textarea:focus {
   place-items: center;
   width: 102px;
   height: 102px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.upload-dropzone__visual:focus-visible {
+  outline: 2px solid rgba(135, 152, 109, 0.46);
+  outline-offset: 8px;
 }
 
 .upload-dropzone__halo,
