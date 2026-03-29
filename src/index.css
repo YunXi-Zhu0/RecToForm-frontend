@@ -966,7 +966,7 @@ textarea:focus {
 }
 
 .result-stage__table--preview {
-  height: clamp(320px, 42vh, 520px);
+  height: clamp(360px, 48vh, 600px);
   max-height: 100%;
 }
 
@@ -1707,7 +1707,7 @@ textarea:focus {
   }
 
   .result-stage__table--preview {
-    height: clamp(280px, 46vh, 420px);
+    height: clamp(320px, 52vh, 500px);
     max-height: none;
   }
 }

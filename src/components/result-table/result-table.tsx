@@ -186,9 +186,6 @@ export function ResultTable({
             </div>
           )}
 
-          <div className="inline-notice">
-            结果已按模板结构生成，首列保留源文件顺序。确认无误后可直接前往下载区获取 Excel。
-          </div>
         </div>
 
         <div className="result-stage__table result-stage__table--preview">
