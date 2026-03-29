@@ -9,7 +9,6 @@ import { ResultTable } from '@/components/result-table/result-table'
 import { TemplatePanel } from '@/components/template-panel/template-panel'
 import { UploadFileList } from '@/components/upload-file-list/upload-file-list'
 import { UploadPanel } from '@/components/upload-panel/upload-panel'
-import { formatTaskStatus } from '@/core/formatters'
 import { useWorkbenchState } from '@/hooks/use-workbench-state'
 import {
   isStandardEditTaskResult,
@@ -46,20 +45,6 @@ export function WorkbenchPage() {
     !state.isInitializing &&
     !state.isSubmittingTask &&
     !state.isPolling
-  const systemState = state.initializationError
-    ? '连接异常'
-    : state.isInitializing
-      ? '初始化中'
-      : isProcessing
-        ? '处理中'
-        : '就绪'
-  const systemTone = state.initializationError
-    ? 'error'
-    : state.isInitializing
-      ? 'warning'
-      : isProcessing
-        ? 'info'
-        : 'success'
 
   function handleAddFiles(files: FileList | File[]): void {
     state.uploadFiles.addFiles(files)
@@ -70,25 +55,9 @@ export function WorkbenchPage() {
     <main className="workbench-page">
       <header className="brand-header">
         <div className="brand-header__brand">
-          <span className="brand-header__eyebrow">轻松整理发票</span>
           <h1>RecToForm</h1>
         </div>
-
-        <div className="brand-header__meta">
-          <span className={`status-pill status-pill--${systemTone}`}>
-            {systemState}
-          </span>
-          <span className="metric-chip">
-            {state.taskStatus === null ? '等待上传' : formatTaskStatus(state.taskStatus)}
-          </span>
-        </div>
       </header>
-
-      <section className="hero-copy">
-        <p>
-          当前阶段把工作台拆成左侧模板区、中间上传与预演区、右侧文件清单区。点击开始处理后，中间主舞台会直接进入进度分析层；任务完成后，结果表格继续留在这块区域承接校对。
-        </p>
-      </section>
 
       {state.initializationError ? (
         <div className="banner">
