@@ -236,9 +236,6 @@ export function ResultTable({
         )}
 
         <div className="result-grid-toolbar">
-          <div className="inline-notice inline-notice--accent result-grid-toolbar__notice">
-            首行就是导出列名，可直接编辑。选中任意单元格后可移动或删除当前列。
-          </div>
           <div className="inline-actions">
             <span className="tag">当前列：{selectedColumnLabel}</span>
             <div className="header-actions">
