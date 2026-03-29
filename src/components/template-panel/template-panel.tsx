@@ -68,10 +68,9 @@ export function TemplatePanel({
             {templates.map((template) => (
               <div key={template.template_id} className="template-card">
                 <span className="template-card__eyebrow">
-                  v{template.template_version}
+                  {template.template_version}
                 </span>
                 <strong>{template.template_name}</strong>
-                <span className="muted">Mapping {template.mapping_version}</span>
               </div>
             ))}
           </div>
@@ -108,10 +107,9 @@ export function TemplatePanel({
             disabled={disabled}
           >
             <span className="template-card__eyebrow">
-              v{template.template_version}
+              {template.template_version}
             </span>
             <strong>{template.template_name}</strong>
-            <span className="muted">Mapping {template.mapping_version}</span>
           </button>
         ))}
       </div>
