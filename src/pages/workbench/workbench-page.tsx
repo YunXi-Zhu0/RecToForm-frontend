@@ -192,6 +192,33 @@ export function WorkbenchPage() {
                     onMoveColumn={state.moveColumn}
                   />
                 </div>
+
+                {state.taskResult !== null &&
+                isTemplateTaskResult(state.taskResult) ? (
+                  <div className="intake-stage-card__footer intake-stage-card__footer--result">
+                    <a
+                      className="button-primary button-link"
+                      href={state.taskResult.excel_download_url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      下载 Excel
+                    </a>
+                  </div>
+                ) : (
+                  <div className="intake-stage-card__result-actions">
+                    <ExportActions
+                      exportFilename={state.exportFilename}
+                      exportError={state.exportError}
+                      isExporting={state.isExporting}
+                      onCommitExportFilename={state.commitExportFilename}
+                      onExport={(filename) => {
+                        state.commitExportFilename(filename)
+                        void state.exportStandardFields(filename)
+                      }}
+                    />
+                  </div>
+                )}
               </>
             ) : (
               <>
@@ -288,59 +315,18 @@ export function WorkbenchPage() {
         </section>
       </section>
 
-      {hasResult || hasFailedItems ? (
-        <section className="workspace-output">
-          <div className="workspace-output__header">
+      {hasFailedItems ? (
+        <section className="workspace-failures surface-card surface-card--warning">
+          <div className="workspace-failures__header">
             <div>
-              <span className="panel-kicker">任务收口</span>
-              <h2>导出下载与异常项</h2>
+              <span className="panel-kicker">失败项</span>
+              <h2>异常文件明细</h2>
             </div>
-            {state.taskResult ? (
-              <span className="metric-chip">
-                {state.taskResult.mode === 'template' ? '模板交付' : '标准字段导出'}
-              </span>
-            ) : null}
+            <span className="metric-chip metric-chip--error">
+              {state.failedItems.length} 个异常文件
+            </span>
           </div>
-
-          <div
-            className={
-              hasFailedItems
-                ? 'workspace-output__grid'
-                : 'workspace-output__grid workspace-output__grid--single'
-            }
-          >
-            {state.taskResult ? (
-              <section className="surface-card surface-card--aside">
-                <ExportActions
-                  result={state.taskResult}
-                  exportDownloadUrl={state.exportDownloadUrl}
-                  exportFilename={state.exportFilename}
-                  exportError={state.exportError}
-                  isExporting={state.isExporting}
-                  onCommitExportFilename={state.commitExportFilename}
-                  onExport={(filename) => {
-                    state.commitExportFilename(filename)
-                    void state.exportStandardFields(filename)
-                  }}
-                />
-              </section>
-            ) : null}
-
-            {hasFailedItems ? (
-              <section className="surface-card surface-card--warning workspace-output__failures">
-                <div className="workspace-output__header">
-                  <div>
-                    <span className="panel-kicker">失败项</span>
-                    <h2>异常文件明细</h2>
-                  </div>
-                  <span className="metric-chip metric-chip--error">
-                    {state.failedItems.length} 个异常文件
-                  </span>
-                </div>
-                <FailedItems items={state.failedItems} />
-              </section>
-            ) : null}
-          </div>
+          <FailedItems items={state.failedItems} />
         </section>
       ) : null}
     </main>

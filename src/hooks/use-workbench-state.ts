@@ -78,6 +78,21 @@ function areStringMatrixesEqual(left: string[][], right: string[][]): boolean {
   return left.every((row, rowIndex) => areStringArraysEqual(row, right[rowIndex] ?? []))
 }
 
+function triggerFileDownload(url: string, filename: string): void {
+  if (typeof document === 'undefined') {
+    return
+  }
+
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename
+  link.rel = 'noreferrer'
+  link.style.display = 'none'
+  document.body.append(link)
+  link.click()
+  link.remove()
+}
+
 export function useWorkbenchState() {
   const uploadFiles = useUploadFiles()
 
@@ -400,6 +415,7 @@ export function useWorkbenchState() {
       setExportId(response.export_id)
       setExportFilename(response.filename)
       setExportDownloadUrl(response.download_url)
+      triggerFileDownload(response.download_url, response.filename)
     } catch (error) {
       setExportError(toAppError(error).message)
     } finally {
