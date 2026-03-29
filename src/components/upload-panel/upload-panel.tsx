@@ -5,12 +5,29 @@ interface UploadPanelProps {
   filesCount: number
   validationErrors: string[]
   onAddFiles: (files: FileList | File[]) => void
+  onReturnToPreview?: () => void
+}
+
+function ReturnArrowIcon() {
+  return (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path
+        d="M8.25 5.25 3.5 10l4.75 4.75M4 10h12.5"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.7"
+      />
+    </svg>
+  )
 }
 
 export function UploadPanel({
   filesCount,
   validationErrors,
   onAddFiles,
+  onReturnToPreview,
 }: UploadPanelProps) {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const [isDragActive, setIsDragActive] = useState(false)
@@ -51,6 +68,21 @@ export function UploadPanel({
             event.currentTarget.value = ''
           }}
         />
+
+        {filesCount > 0 && onReturnToPreview ? (
+          <div className="upload-dropzone__toolbar">
+            <button
+              type="button"
+              className="button-secondary upload-dropzone__return-button"
+              onClick={onReturnToPreview}
+            >
+              <span className="upload-dropzone__return-icon">
+                <ReturnArrowIcon />
+              </span>
+              返回预览字段
+            </button>
+          </div>
+        ) : null}
 
         <button
           type="button"

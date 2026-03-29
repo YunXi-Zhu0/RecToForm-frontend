@@ -728,6 +728,38 @@ textarea:focus {
     0 12px 30px rgba(170, 156, 137, 0.12);
 }
 
+.upload-dropzone__toolbar {
+  position: absolute;
+  top: clamp(0.9rem, 2vw, 1.2rem);
+  right: clamp(0.9rem, 2vw, 1.2rem);
+  z-index: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.upload-dropzone__return-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.35rem;
+  padding-inline: 0.9rem 1rem;
+  border-radius: 999px;
+  background: rgba(255, 250, 243, 0.92);
+  box-shadow: 0 10px 22px rgba(170, 156, 137, 0.08);
+}
+
+.upload-dropzone__return-icon {
+  display: inline-flex;
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.upload-dropzone__return-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
 .upload-dropzone__visual {
   position: relative;
   display: grid;

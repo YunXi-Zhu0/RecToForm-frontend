@@ -143,7 +143,7 @@ export function WorkbenchPage() {
                         setIsUploadSelectorVisible(false)
                       }}
                     >
-                      返回上传与预演
+                      返回并预览字段
                     </button>
                   </div>
                 </div>
@@ -207,7 +207,7 @@ export function WorkbenchPage() {
                       <span className="intake-stage-card__return-icon">
                         <ReturnArrowIcon />
                       </span>
-                      补充上传文件
+                      继续上传文件
                     </button>
                   ) : null}
                 </div>
@@ -230,6 +230,9 @@ export function WorkbenchPage() {
                       filesCount={state.uploadFiles.items.length}
                       validationErrors={state.uploadFiles.validationErrors}
                       onAddFiles={handleAddFiles}
+                      onReturnToPreview={
+                        hasFiles ? () => setIsUploadSelectorVisible(false) : undefined
+                      }
                     />
                   ) : (
                     <IntakePreview
