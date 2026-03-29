@@ -136,6 +136,30 @@ function StatusIcon({ status }: { status: 'success' | 'error' }) {
   )
 }
 
+function RemovableSuccessStatusButton({
+  fileName,
+  onRemove,
+}: {
+  fileName: string
+  onRemove: () => void
+}) {
+  return (
+    <button
+      type="button"
+      className="file-status file-status--button file-status--removable is-success"
+      aria-label={`删除文件 ${fileName}`}
+      onClick={onRemove}
+    >
+      <span className="file-status__icon file-status__icon--idle">
+        <StatusIcon status="success" />
+      </span>
+      <span className="file-status__icon file-status__icon--hover">
+        <StatusIcon status="error" />
+      </span>
+    </button>
+  )
+}
+
 export function UploadFileList({ files, onRemoveFile }: UploadFileListProps) {
   const duplicateHintMap = buildDuplicateHintMap(files)
 
@@ -147,66 +171,77 @@ export function UploadFileList({ files, onRemoveFile }: UploadFileListProps) {
         </div>
       ) : (
         <div className="upload-file-sidebar__table" role="table" aria-label="上传文件清单">
-          <div className="upload-file-sidebar__table-head" role="row">
-            <span>序号</span>
-            <span>文件名</span>
-            <span>大小</span>
-            <span>状态</span>
-          </div>
+          <div className="upload-file-sidebar__scroll-region">
+            <div className="upload-file-sidebar__table-head" role="row">
+              <span className="upload-file-sidebar__head-cell upload-file-sidebar__head-cell--index">
+                序号
+              </span>
+              <span className="upload-file-sidebar__head-cell upload-file-sidebar__head-cell--name">
+                文件名
+              </span>
+              <span className="upload-file-sidebar__head-cell upload-file-sidebar__head-cell--size">
+                大小
+              </span>
+              <span className="upload-file-sidebar__head-cell upload-file-sidebar__head-cell--status">
+                状态
+              </span>
+            </div>
 
-          <ul className="upload-file-sidebar__list">
-            {files.map((item, index) => {
-              const status = getFileStatus(item)
-              const duplicateHint = duplicateHintMap.get(item.id) ?? ''
+            <ul className="upload-file-sidebar__list">
+              {files.map((item, index) => {
+                const status = getFileStatus(item)
+                const duplicateHint = duplicateHintMap.get(item.id) ?? ''
 
-              return (
-                <li
-                  key={item.id}
-                  className={`upload-file-entry ${status.toneClassName}`}
-                  role="row"
-                >
-                  <div className="upload-file-entry__cell upload-file-entry__cell--index">
-                    <span>{index + 1}</span>
-                  </div>
-
-                  <div className="upload-file-entry__cell upload-file-entry__cell--name">
-                    <div className="upload-file-entry__file">
-                      <span className="upload-file-entry__file-icon">
-                        <FileDocumentIcon />
-                      </span>
-                      <strong title={item.file.name}>{item.file.name}</strong>
+                return (
+                  <li
+                    key={item.id}
+                    className={`upload-file-entry ${status.toneClassName}`}
+                    role="row"
+                  >
+                    <div className="upload-file-entry__cell upload-file-entry__cell--index">
+                      <span>{index + 1}</span>
                     </div>
-                  </div>
 
-                  <div className="upload-file-entry__cell upload-file-entry__cell--size">
-                    <span>{formatFileSize(item.file.size)}</span>
-                  </div>
+                    <div className="upload-file-entry__cell upload-file-entry__cell--name">
+                      <div className="upload-file-entry__file">
+                        <span className="upload-file-entry__file-icon">
+                          <FileDocumentIcon />
+                        </span>
+                        <strong title={item.file.name}>{item.file.name}</strong>
+                      </div>
+                    </div>
 
-                  <div className="upload-file-entry__cell upload-file-entry__cell--status">
-                    {status.icon === 'error' ? (
-                      <button
-                        type="button"
-                        className={`file-status file-status--button ${status.toneClassName}`}
-                        aria-label={`删除重复文件 ${item.file.name}`}
-                        onClick={() => onRemoveFile(item.id)}
-                      >
-                        <StatusIcon status={status.icon} />
-                      </button>
-                    ) : (
-                      <span className={`file-status ${status.toneClassName}`}>
-                        <StatusIcon status={status.icon} />
-                      </span>
-                    )}
-                    {duplicateHint ? (
-                      <span className={`file-status__hint ${status.toneClassName}`}>
-                        {duplicateHint}
-                      </span>
-                    ) : null}
-                  </div>
-                </li>
-              )
-            })}
-          </ul>
+                    <div className="upload-file-entry__cell upload-file-entry__cell--size">
+                      <span>{formatFileSize(item.file.size)}</span>
+                    </div>
+
+                    <div className="upload-file-entry__cell upload-file-entry__cell--status">
+                      {status.icon === 'error' ? (
+                        <button
+                          type="button"
+                          className={`file-status file-status--button ${status.toneClassName}`}
+                          aria-label={`删除重复文件 ${item.file.name}`}
+                          onClick={() => onRemoveFile(item.id)}
+                        >
+                          <StatusIcon status={status.icon} />
+                        </button>
+                      ) : (
+                        <RemovableSuccessStatusButton
+                          fileName={item.file.name}
+                          onRemove={() => onRemoveFile(item.id)}
+                        />
+                      )}
+                      {duplicateHint ? (
+                        <span className={`file-status__hint ${status.toneClassName}`}>
+                          {duplicateHint}
+                        </span>
+                      ) : null}
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
         </div>
       )}
     </div>
