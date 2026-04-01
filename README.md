@@ -1,73 +1,45 @@
-# React + TypeScript + Vite
+# RecToForm-backend
+一个AI Workflow项目, 基于 fastapi 和 llm 的发票信息提取与自动填表系统服务端，支持pdf、图片多种格式输入，批量识别提取发票信息并生成excel表格\
+tips: 本项目为前后端分离架构, 本仓库仅为客户端; 后端服务请移步[RecToForm-backend](https://github.com/YunXi-Zhu0/RecToForm-backend)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-Currently, two official plugins are available:
+# 一、产品功能演示
+## 1. 全字段匹配填写
+- 识别发票中所有信息并返回
+- 支持在线表格编辑, 自编辑表头及其对应数据信息; 同时支持一键删除、移动、恢复数据列操作
+- 支持编辑后表格下载, 导出为Excel表格文件
+![002](./assets/2.gif)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 2. 自定义模板填写
+- 用户可通过编辑`template/`下的配置文件以自定义默认模板(可参考已有模板: `asset_import_v1`、`finance_invoice_v1`)
+- 导出表格文件的表头由用户自定义配置文件决定
+![001](./assets/1.gif)
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# 二、快速启动
+## 1. Docker 启动（推荐）
 ```
+docker compose up --build
+```
+## 2. 本地环境启动
+### 2.1 环境准备
+```bash
+# 下载并安装 nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.6/install.sh | bash
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+# 重新加载 shell 配置
+source ~/.bashrc
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+# 安装最新版 Node（比如 20.x）
+nvm install 20
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# 使用这个版本
+nvm use 20
+
+# 设置为默认版本
+nvm alias default 20
+```
+### 2.2 安装依赖并启动
+```bash
+npm install
+npm run dev
 ```
