@@ -1,0 +1,12 @@
+services:
+  fronted:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NPM_REGISTRY: ${NPM_REGISTRY:-https://registry.npmmirror.com/}
+    container_name: rec2form-frontend
+    ports:
+      - "5173:5173"
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+    restart: unless-stopped
