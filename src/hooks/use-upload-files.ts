@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { createClientId } from '@/core/ids'
 import {
   buildWeakFileSignature,
   findWeakDuplicateSignatures,
@@ -9,7 +10,7 @@ import type { UploadFileItem } from '@/types/workbench'
 
 function buildFileItem(file: File): UploadFileItem {
   return {
-    id: crypto.randomUUID(),
+    id: createClientId('upload-file'),
     file,
     localWarnings: [],
     isServerDuplicate: false,
@@ -34,21 +35,27 @@ export function useUploadFiles() {
   const [validationErrors, setValidationErrors] = useState<string[]>([])
 
   function addFiles(fileList: FileList | File[]): void {
-    const nextFiles = Array.from(fileList)
-    const validation = validateUploadSelection(nextFiles, items.length)
+    try {
+      const nextFiles = Array.from(fileList)
+      const validation = validateUploadSelection(nextFiles, items.length)
 
-    setValidationErrors(validation.errors)
+      setValidationErrors(validation.errors)
 
-    if (validation.acceptedFiles.length === 0) {
-      return
+      if (validation.acceptedFiles.length === 0) {
+        return
+      }
+
+      setItems((currentItems) =>
+        decorateItems([
+          ...currentItems,
+          ...validation.acceptedFiles.map((file) => buildFileItem(file)),
+        ]),
+      )
+    } catch (error) {
+      setValidationErrors([
+        error instanceof Error ? error.message : '读取上传文件时发生错误。',
+      ])
     }
-
-    setItems((currentItems) =>
-      decorateItems([
-        ...currentItems,
-        ...validation.acceptedFiles.map((file) => buildFileItem(file)),
-      ]),
-    )
   }
 
   function removeFile(fileId: string): void {
