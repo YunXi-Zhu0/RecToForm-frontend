@@ -1,8 +1,10 @@
-FROM node:20.20.1-slim
+FROM node:20.20.1-slim AS builder
 
 WORKDIR /app
 
 ARG NPM_REGISTRY=https://registry.npmmirror.com/
+ARG VITE_API_BASE_URL=/
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
 
 COPY package.json package-lock.json ./
 RUN npm config set registry "$NPM_REGISTRY" \
@@ -10,9 +12,13 @@ RUN npm config set registry "$NPM_REGISTRY" \
     && npm cache clean --force
 
 COPY . .
+RUN npm run build
 
-EXPOSE 5173
+FROM nginx:alpine
 
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+EXPOSE 80
 
 LABEL authors="yunxi-zhu"
